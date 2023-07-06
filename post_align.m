@@ -1,0 +1,100 @@
+function post_align_struct = post_align(file,fig)
+
+load(file)
+
+if isfield(aligned_data,"right_LFP_table") == 1
+
+    % create new time stream where t=0 is start of recordings (alignment point)
+    l_rcs_lfp_time = aligned_data.left_LFP_table.DerivedTime - aligned_data.left_LFP_table.DerivedTime(1);
+    r_rcs_lfp_time = aligned_data.right_LFP_table.DerivedTime - aligned_data.right_LFP_table.DerivedTime(1);
+    l_rcs_accel_time = aligned_data.left_Accel_table.DerivedTime - aligned_data.left_Accel_table.DerivedTime(1);
+    r_rcs_accel_time = aligned_data.right_Accel_table.DerivedTime - aligned_data.right_Accel_table.DerivedTime(1);
+    l_rover_time = 1000*seconds(aligned_data.Rover.Left.DateTime - aligned_data.Rover.Left.DateTime(1));
+    r_rover_time = 1000*seconds(aligned_data.Rover.Right.DateTime - aligned_data.Rover.Right.DateTime(1));
+
+    if l_rcs_lfp_time(end,1) < r_rcs_lfp_time(end,1)
+        l_rcs_lfp_crop = size(l_rcs_lfp_time,1);
+        end_time = l_rcs_lfp_time(end,1);
+        [~, r_rcs_lfp_crop] = min(abs(r_rcs_lfp_time - end_time));
+        [~, l_rover_crop] = min(abs(l_rover_time - end_time));
+        [~, r_rover_crop] = min(abs(r_rover_time - end_time));
+        [~, l_rcs_accel_crop] = min(abs(l_rcs_accel_time - end_time));
+        [~, r_rcs_accel_crop] = min(abs(r_rcs_accel_time - end_time));
+    else
+        r_rcs_lfp_crop = size(r_rcs_lfp_time,1);
+        end_time = r_rcs_lfp_time(end,1);
+        [~, l_rcs_lfp_crop] = min(abs(l_rcs_lfp_time - end_time));
+        [~, l_rover_crop] = min(abs(l_rover_time - end_time));
+        [~, r_rover_crop] = min(abs(r_rover_time - end_time));
+        [~, l_rcs_accel_crop] = min(abs(l_rcs_accel_time - end_time));
+        [~, r_rcs_accel_crop] = min(abs(r_rcs_accel_time - end_time));
+    end
+
+    % concatenate signals with the new time stream 
+    l_rcs_lfp_sig = [aligned_data.left_LFP_table(1:l_rcs_lfp_crop,:), table(l_rcs_lfp_time(1:l_rcs_lfp_crop),'VariableNames',{'NewTime'})];
+    r_rcs_lfp_sig = [aligned_data.right_LFP_table(1:r_rcs_lfp_crop,:), table(r_rcs_lfp_time(1:r_rcs_lfp_crop),'VariableNames',{'NewTime'})];
+    l_rover_sig = [aligned_data.Rover.Left(1:l_rover_crop,:), table(l_rover_time(1:l_rover_crop),'VariableNames',{'NewTime'})];
+    r_rover_sig = [aligned_data.Rover.Right(1:r_rover_crop,:), table(r_rover_time(1:r_rover_crop),'VariableNames',{'NewTime'})];
+    l_rcs_accel_sig = [aligned_data.left_Accel_table(1:l_rcs_accel_crop,:), table(l_rcs_accel_time(1:l_rcs_accel_crop),'VariableNames',{'NewTime'})];
+    r_rcs_accel_sig = [aligned_data.right_Accel_table(1:r_rcs_accel_crop,:), table(r_rcs_accel_time(1:r_rcs_accel_crop),'VariableNames',{'NewTime'})];
+
+    % place aligned and cropped signals into a structure post_align_struct
+    post_align_struct.l_rcs_accel = l_rcs_accel_sig;
+    post_align_struct.r_rcs_accel = r_rcs_accel_sig;
+    post_align_struct.l_rcs_lfp = l_rcs_lfp_sig;
+    post_align_struct.r_rcs_lfp = r_rcs_lfp_sig;
+    post_align_struct.l_rover = l_rover_sig;
+    post_align_struct.r_rover = r_rover_sig;
+
+else 
+
+    % create new time stream where t=0 is start of recordings (alignment point)
+    l_rcs_lfp_time = aligned_data.left_LFP_table.DerivedTime - aligned_data.left_LFP_table.DerivedTime(1);
+    l_rcs_accel_time = aligned_data.left_Accel_table.DerivedTime - aligned_data.left_Accel_table.DerivedTime(1);
+    l_rover_time = 1000*seconds(aligned_data.Rover.Left.DateTime - aligned_data.Rover.Left.DateTime(1));
+    r_rover_time = 1000*seconds(aligned_data.Rover.Right.DateTime - aligned_data.Rover.Right.DateTime(1));
+
+    l_rcs_lfp_crop = size(l_rcs_lfp_time,1);
+    end_time = l_rcs_lfp_time(end,1);
+    [~, l_rover_crop] = min(abs(l_rover_time - end_time));
+    [~, r_rover_crop] = min(abs(r_rover_time - end_time));
+    [~, l_rcs_accel_crop] = min(abs(l_rcs_accel_time - end_time));
+
+    l_rcs_lfp_sig = [aligned_data.left_LFP_table(1:l_rcs_lfp_crop,:), table(l_rcs_lfp_time(1:l_rcs_lfp_crop),'VariableNames',{'NewTime'})];
+    l_rover_sig = [aligned_data.Rover.Left(1:l_rover_crop,:), table(l_rover_time(1:l_rover_crop),'VariableNames',{'NewTime'})];
+    r_rover_sig = [aligned_data.Rover.Right(1:r_rover_crop,:), table(r_rover_time(1:r_rover_crop),'VariableNames',{'NewTime'})];
+    l_rcs_accel_sig = [aligned_data.left_Accel_table(1:l_rcs_accel_crop,:), table(l_rcs_accel_time(1:l_rcs_accel_crop),'VariableNames',{'NewTime'})];
+
+    % plot the aligned and cropped signals on unified time stream
+    if fig == 1 || nargin == 1
+        figure(2) 
+        ax(1) = subplot(311);
+        plot(l_rcs_accel_sig.NewTime,l_rcs_accel_sig.XSamples)
+        title('L RC+S Accelerometry')
+        ax(2) = subplot(312);
+        plot(l_rover_sig.NewTime, l_rover_sig.LinearAccelX)
+        title('L Rover Accelerometry')
+        ax(4) = subplot(313);
+        plot(r_rover_sig.NewTime, r_rover_sig.LinearAccelX)
+        title('R Rover Accelerometry')
+        linkaxes(ax,'x');
+    end
+
+    % place aligned and cropped signals into a structure post_align_struct
+    post_align_struct.l_rcs_accel = l_rcs_accel_sig;
+    post_align_struct.l_rcs_lfp = l_rcs_lfp_sig;
+    post_align_struct.l_rover = l_rover_sig;
+    post_align_struct.r_rover = r_rover_sig;
+
+    % add the year of recording for a future step
+    if contains(file,'21_') == 1
+        post_align_struct.year = 2021;
+    elseif contains(file,'22_') == 1
+        post_align_struct.year = 2022;
+    else
+        post_align_struct.year = 2023;
+    end
+
+end 
+end
+
