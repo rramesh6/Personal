@@ -46,6 +46,40 @@ if isfield(aligned_data,"right_LFP_table") == 1
     post_align_struct.l_rover = l_rover_sig;
     post_align_struct.r_rover = r_rover_sig;
 
+    % add the year of recording and filename for a future step
+    
+    splitStr_1 = strsplit(file, '/');
+    splitStr_2 = strsplit(splitStr_1{end}, '_');
+    splitStr_3 = strsplit(splitStr_2{end},'.');
+    filename = [splitStr_2{end-1} '_' splitStr_3{1}];
+    post_align_struct.filename = filename;
+
+    if contains(file,'21_') == 1
+        post_align_struct.year = 2021;
+    elseif contains(file,'22_') == 1
+        post_align_struct.year = 2022;
+    else
+        post_align_struct.year = 2023;
+    end
+
+    % plot the aligned and cropped signals on unified time stream
+    if fig == 1 || nargin == 1
+        figure(2) 
+        ax(1) = subplot(411);
+        plot(l_rcs_accel_sig.NewTime,l_rcs_accel_sig.XSamples)
+        title('L RC+S Accelerometry')
+        ax(2) = subplot(412);
+        plot(l_rover_sig.NewTime, l_rover_sig.LinearAccelX)
+        title('L Rover Accelerometry')
+        ax(3) = subplot(413);
+        plot(r_rcs_accel_sig.NewTime, r_rcs_accel_sig.XSamples)
+        title('R RC+S Accelerometry')
+        ax(4) = subplot(414);
+        plot(r_rover_sig.NewTime, r_rover_sig.LinearAccelX)
+        title('R Rover Accelerometry')
+        linkaxes(ax,'x');
+    end
+
 else 
 
     % create new time stream where t=0 is start of recordings (alignment point)
@@ -86,7 +120,14 @@ else
     post_align_struct.l_rover = l_rover_sig;
     post_align_struct.r_rover = r_rover_sig;
 
-    % add the year of recording for a future step
+    % add the year of recording and filename for a future step
+
+    splitStr_1 = strsplit(file, '/');
+    splitStr_2 = strsplit(splitStr_1{end}, '_');
+    splitStr_3 = strsplit(splitStr_2{end},'.');
+    filename = [splitStr_2{end-1} '_' splitStr_3{1}];
+    post_align_struct.filename = filename;
+
     if contains(file,'21_') == 1
         post_align_struct.year = 2021;
     elseif contains(file,'22_') == 1
