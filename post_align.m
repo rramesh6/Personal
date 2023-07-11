@@ -64,7 +64,7 @@ if isfield(aligned_data,"right_LFP_table") == 1
 
     % plot the aligned and cropped signals on unified time stream
     if fig == 1 || nargin == 1
-        figure(2) 
+        figure() 
         ax(1) = subplot(411);
         plot(l_rcs_accel_sig.NewTime,l_rcs_accel_sig.XSamples)
         title('L RC+S Accelerometry')
@@ -101,7 +101,7 @@ else
 
     % plot the aligned and cropped signals on unified time stream
     if fig == 1 || nargin == 1
-        figure(2) 
+        figure() 
         ax(1) = subplot(311);
         plot(l_rcs_accel_sig.NewTime,l_rcs_accel_sig.XSamples)
         title('L RC+S Accelerometry')

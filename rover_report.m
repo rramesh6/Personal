@@ -8,6 +8,11 @@ warning('off','all');
 if contains(subject,'RCS_02')
     path = '/Volumes/dwang3_shared/Patient Data/RC+S Data/gait_RCS_02/Rover/Rover Excel Reports';
 end
+
+if contains(subject,'RCS_05')
+    path = '/Volumes/dwang3_shared/Patient Data/RC+S Data/gait_RCS_05/Rover/Rover Excel Reports';
+end
+
 files = dir(fullfile(path,'*.xlsx'));
 names = {files.name};
 addpath(path)
@@ -22,6 +27,11 @@ rover_stack = [];
 for i = 1:length(names)
 
     fname = names{i}
+    sheets = sheetnames(fname);
+
+    if sum(contains(sheets,'Left Leg')) == 0
+        continue
+    end
 
     % convert all columns of the data set to appropriate data types,
     % starting with the left leg information

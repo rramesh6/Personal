@@ -41,7 +41,7 @@ rectangle('Position',[12,-100,18,100],'FaceColor',[1, 1, 0, 0.1],'EdgeColor','no
 rectangle('Position',[30,-100,40,100],'FaceColor',[0, 1, 1, 0.1],'EdgeColor','none'); % low gamma
 rectangle('Position',[70,-100,30,100],'FaceColor',[1, 0, 1, 0.1],'EdgeColor','none'); % high gamma
 xlim([0 100])
-ylim([-80 -30])
+ylim([-9 -30])
 hold off 
 
 % figure(10)

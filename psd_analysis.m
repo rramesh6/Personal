@@ -1,16 +1,18 @@
-function [P_gait,F_gait,P_nongait,F_nongait] = psd_analysis(post_align_struct,key,fig)
+function [P_gait,F_gait,chunks_gait,P_nongait,F_nongait,chunks_nongait] = psd_analysis(post_align_struct,key,fig)
 
 period = post_align_struct.period;
 ms = 1000*period;
 
 if key == 0
 
-    new_num_periods = size(post_align_struct.l_gait_periods,1)-1;
+    new_num_periods = size(post_align_struct.overall_gait_periods,1);
 
     Fs = 500;
     Pxx_key0_gait = [];
+    chunks_key0_gait = [];
     F_key0_gait = [];
     Pxx_key0_nongait = [];
+    chunks_key0_nongait = [];
     F_key0_nongait = [];
 
     for i = 1:new_num_periods
@@ -19,11 +21,14 @@ if key == 0
         x = post_align_struct.l_rcs_lfp.key0(start_idx:end_idx,:);
         if size(x,1) > 8
             [Pxx,F] = pwelch(x,[],[],Fs*period,Fs);
+            chunk_label = string([post_align_struct.filename '_' num2str(i)]);
             if post_align_struct.overall_gait_periods.Gait(i,1) == 1
                 Pxx_key0_gait = [Pxx_key0_gait Pxx];
+                chunks_key0_gait = [chunks_key0_gait chunk_label];
                 F_key0_gait = [F_key0_gait F];
-            else
+            elseif post_align_struct.overall_gait_periods.Gait(i,1) == 0
                 Pxx_key0_nongait = [Pxx_key0_nongait Pxx];
+                chunks_key0_nongait = [chunks_key0_nongait chunk_label];
                 F_key0_nongait = [F_key0_nongait F];
             end
             update = ['Finished processing chunk ' num2str(i)];
@@ -36,7 +41,9 @@ if key == 0
 
     P_gait = Pxx_key0_gait;
     F_gait = F_key0_gait;
+    chunks_gait = chunks_key0_gait;
     P_nongait = Pxx_key0_nongait;
+    chunks_nongait = chunks_key0_nongait;
     F_nongait = F_key0_nongait;
 
     if fig == 1 || nargin == 2
@@ -61,12 +68,14 @@ end
 
 if key == 1
 
-    new_num_periods = size(post_align_struct.l_gait_periods,1);
+    new_num_periods = size(post_align_struct.overall_gait_periods,1);
 
     Fs = 500;
     Pxx_key1_gait = [];
+    chunks_key1_gait = [];
     F_key1_gait = [];
     Pxx_key1_nongait = [];
+    chunks_key1_nongait = [];
     F_key1_nongait = [];
 
     for i = 1:new_num_periods
@@ -75,11 +84,14 @@ if key == 1
         x = post_align_struct.l_rcs_lfp.key1(start_idx:end_idx,:);
         if size(x,1) > 8
             [Pxx,F] = pwelch(x,[],[],Fs*period,Fs);
+            chunk_label = string([post_align_struct.filename '_' num2str(i)]);
             if post_align_struct.overall_gait_periods.Gait(i,1) == 1
                 Pxx_key1_gait = [Pxx_key1_gait Pxx];
+                chunks_key1_gait = [chunks_key1_gait chunk_label];
                 F_key1_gait = [F_key1_gait F];
             else
                 Pxx_key1_nongait = [Pxx_key1_nongait Pxx];
+                chunks_key1_nongait = [chunks_key1_nongait chunk_label];
                 F_key1_nongait = [F_key1_nongait F];
             end
             update = ['Finished processing chunk ' num2str(i)];
@@ -92,7 +104,9 @@ if key == 1
 
     P_gait = Pxx_key1_gait;
     F_gait = F_key1_gait;
+    chunks_gait = chunks_key1_gait;
     P_nongait = Pxx_key1_nongait;
+    chunks_nongait = chunks_key1_nongait;
     F_nongait = F_key1_nongait;
 
     if fig == 1 || nargin == 2
@@ -104,22 +118,24 @@ if key == 1
         plot(F_key1_gait(:,1),10*log10(mean(Pxx_key1_gait,2)),'b')
         plot(F_key1_nongait(:,1),10*log10(mean(Pxx_key1_nongait,2)),'r')
         legend('Gait','Non-Gait')
-        rectangle('Position',[4,-125,3,100],'FaceColor',[1, 1, 0, 0.1],'EdgeColor','none'); % theta
-        rectangle('Position',[8,-125,4,100],'FaceColor',[0, 1, 0, 0.1],'EdgeColor','none'); % alpha
-        rectangle('Position',[13,-125,17,100],'FaceColor',[1, 0, 0, 0.1],'EdgeColor','none'); % beta
-        rectangle('Position',[70,-125,20,100],'FaceColor',[0, 0, 1, 0.1],'EdgeColor','none'); % gamma
+%         rectangle('Position',[4,-125,3,100],'FaceColor',[1, 1, 0, 0.1],'EdgeColor','none'); % theta
+%         rectangle('Position',[8,-125,4,100],'FaceColor',[0, 1, 0, 0.1],'EdgeColor','none'); % alpha
+%         rectangle('Position',[13,-125,17,100],'FaceColor',[1, 0, 0, 0.1],'EdgeColor','none'); % beta
+%         rectangle('Position',[70,-125,20,100],'FaceColor',[0, 0, 1, 0.1],'EdgeColor','none'); % gamma
         hold off 
     end
 end
 
 if key == 2
 
-    new_num_periods = size(post_align_struct.l_gait_periods,1);
+    new_num_periods = size(post_align_struct.overall_gait_periods,1);
 
     Fs = 500;
     Pxx_key2_gait = [];
+    chunks_key2_gait = [];
     F_key2_gait = [];
     Pxx_key2_nongait = [];
+    chunks_key2_nongait = [];
     F_key2_nongait = [];
 
     for i = 1:new_num_periods
@@ -128,11 +144,14 @@ if key == 2
         x = post_align_struct.l_rcs_lfp.key2(start_idx:end_idx,:);
         if size(x,1) > 8
             [Pxx,F] = pwelch(x,[],[],Fs*period,Fs);
+            chunk_label = string([post_align_struct.filename '_' num2str(i)]);
             if post_align_struct.overall_gait_periods.Gait(i,1) == 1
                 Pxx_key2_gait = [Pxx_key2_gait Pxx];
+                chunks_key2_gait = [chunks_key2_gait chunk_label];
                 F_key2_gait = [F_key2_gait F];
             else
                 Pxx_key2_nongait = [Pxx_key2_nongait Pxx];
+                chunks_key2_nongait = [chunks_key2_nongait chunk_label];
                 F_key2_nongait = [F_key2_nongait F];
             end
             update = ['Finished processing chunk ' num2str(i)];
@@ -145,7 +164,9 @@ if key == 2
 
     P_gait = Pxx_key2_gait;
     F_gait = F_key2_gait;
+    chunks_gait = chunks_key2_gait;
     P_nongait = Pxx_key2_nongait;
+    chunks_nongait = chunks_key2_nongait;
     F_nongait = F_key2_nongait;
 
     if fig == 1 || nargin == 2
@@ -167,12 +188,14 @@ end
 
 if key == 3
 
-    new_num_periods = size(post_align_struct.l_gait_periods,1);
+    new_num_periods = size(post_align_struct.overall_gait_periods,1);
 
     Fs = 500;
     Pxx_key3_gait = [];
+    chunks_key3_gait = [];
     F_key3_gait = [];
     Pxx_key3_nongait = [];
+    chunks_key3_nongait = [];
     F_key3_nongait = [];
 
     for i = 1:new_num_periods
@@ -181,11 +204,14 @@ if key == 3
         x = post_align_struct.l_rcs_lfp.key3(start_idx:end_idx,:);
         if size(x,1) > 8
             [Pxx,F] = pwelch(x,[],[],Fs*period,Fs);
+            chunk_label = string([post_align_struct.filename '_' num2str(i)]);
             if post_align_struct.overall_gait_periods.Gait(i,1) == 1
                 Pxx_key3_gait = [Pxx_key3_gait Pxx];
+                chunks_key3_gait = [chunks_key3_gait chunk_label];
                 F_key3_gait = [F_key3_gait F];
             else
                 Pxx_key3_nongait = [Pxx_key3_nongait Pxx];
+                chunks_key3_nongait = [chunks_key3_nongait chunk_label];
                 F_key3_nongait = [F_key3_nongait F];
             end
             update = ['Finished processing chunk ' num2str(i)];
@@ -198,7 +224,9 @@ if key == 3
 
     P_gait = Pxx_key3_gait;
     F_gait = F_key3_gait;
+    chunks_gait = chunks_key3_gait;
     P_nongait = Pxx_key3_nongait;
+    chunks_nongait = chunks_key3_nongait;
     F_nongait = F_key3_nongait;
 
     if fig == 1 || nargin == 2

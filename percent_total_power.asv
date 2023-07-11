@@ -1,0 +1,13 @@
+function percent_total_power(struct)
+
+fields = fieldnames(struct);
+gait_power = fields(contains(fields, 'P_gait'));
+freq = fields(contains(fields,'F_gait'));
+freq_res = struct.(freq{:})(2,1) - struct.(freq{:})(1,1);
+total_power = sum(struct.(gait_power{:})(:,1))*freq_res;
+percent_power = ((struct.(gait_power{:})(:,1)*freq_res)/total_power)*100;
+
+mean_powers = mean(struct.(gait_power{:}),1);
+std_powers = std(struct.(gait_power{:}));
+
+(struct.(gait_power{:}) - mean_powers)/std_powers

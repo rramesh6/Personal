@@ -1,0 +1,133 @@
+function [coeff_map, accuracy_map] = band_regression(structure,key,step,freq_lim,num_cv,compare)
+
+key_struct = struct();
+key_struct.P = [structure.(['P_gait_' num2str(key)])' ones(size(structure.(['P_gait_' num2str(key)])',1),1); structure.(['P_nongait_' num2str(key)])' zeros(size(structure.(['P_nongait_' num2str(key)])',1),1)];
+key_struct.F = structure.(['F_gait_' num2str(key)])(1:2001,1)';
+
+coeff_map = [];
+accuracy_map = [];
+num_bands = [0:step:freq_lim];
+num_bands(1) = [];
+
+for bs = num_bands
+
+    band_vals = 0:(freq_lim/bs):freq_lim;
+    
+    band_idx = [];
+    for i = 1:size(band_vals,2)
+        [~,temp_idx] = min(abs(key_struct.F - band_vals(i)));
+        band_idx = [band_idx temp_idx];
+    end
+    
+    feature_table = ones(size(key_struct.P,1),size(band_vals,2)-1);
+    for i = 1:bs
+        feature_table(:,i) = mean(key_struct.P(:,band_idx(i):band_idx(i+1)),2);
+    end
+
+    feature_table = [feature_table key_struct.P(:,end)];
+    coeff_chunks = [];
+    temp_accuracy = [];
+
+    for i = 1:num_cv
+
+        cv = cvpartition(size(feature_table,1),'HoldOut',0.3);
+        idx = cv.test;
+        dataTrain = feature_table(~idx,:);
+        dataTest  = feature_table(idx,:);
+    
+        model = fitglm(dataTrain(:,1:bs),dataTrain(:,end),"Distribution","binomial");
+        y_hat = round(predict(model, dataTest(:,1:bs)));
+        accuracy = 100*(sum(y_hat == dataTest(:,end)) / numel(dataTest(:,end)));
+        temp_accuracy = [temp_accuracy accuracy];
+        temp_coeffs = table2array(model.Coefficients);
+        temp_coeffs = temp_coeffs(2:bs+1,1)';
+        coeff_chunks = [coeff_chunks; temp_coeffs];
+
+    end
+    
+    average_accuracy = mean(temp_accuracy);
+    average_coeffs = mean(coeff_chunks,1);
+    accuracy_map = [accuracy_map average_accuracy];
+
+    temp_coeff_row = ones(size(key_struct.F));
+
+    for i = 1:bs
+       temp_coeff_row(band_idx(i):band_idx(i+1)) = average_coeffs(i);
+    end
+
+    coeff_map = [coeff_map; temp_coeff_row];
+    update = ['Finished processing ' num2str(bs) ' bands data.'];
+    disp(update)
+
+end
+
+% figure()
+% h = heatmap(flip(coeff_map(:,1:freq_lim*10+1)),'GridVisible','off');
+% xlabel('Frequency (Hz)')
+% ylabel('Number of Bands')
+% title(['RCS02 Band Search - Logistic Regression - Key ' num2str(key)])
+% frequencies = cellfun(@num2str, num2cell(key_struct.F(1,1:freq_lim*10+1)), 'UniformOutput', false);
+% frequencies = string(frequencies);
+% frequencies(mod(key_struct.F(1,1:freq_lim*10+1),5) ~= 0) = " ";
+% h.XDisplayLabels = frequencies;
+% band_sizes = string(num_bands');
+% band_sizes(mod(num_bands(1,:),10) ~= 0) = " ";
+% band_sizes = flip(band_sizes);
+% h.YDisplayLabels = band_sizes;
+% 
+% figure()
+% plot(num_bands,accuracy_map);
+% hold on
+% xlabel('Number of Bands')
+% ylabel('Accuracy (%)')
+
+%zscored_coeff_map = zscore(coeff_map,[],2);
+
+max_abs_coeffs = max(abs(coeff_map),[],2);
+rescaled_coeffs = coeff_map ./ max_abs_coeffs;
+
+if compare == 1
+    accuracies = [];
+    [feature_table,~] = freq_power_analysis(structure);
+    for i = 1:10 
+        cv = cvpartition(size(feature_table,1),'HoldOut',0.3);
+        idx = cv.test;
+        dataTrain = feature_table(~idx,:);
+        dataTest  = feature_table(idx,:);
+    
+        model = fitglm(dataTrain(:,1:6),dataTrain(:,7),"Distribution","binomial");
+        y_hat = round(predict(model, dataTest(:,1:6)));
+        accuracy = 100*sum(y_hat == dataTest(:,7))/numel(dataTest(:,7));
+        accuracies = [accuracies accuracy];
+    end
+    average_accuracy = mean(accuracies);
+end
+
+figure()
+subplot(1,3,1:2)
+h = heatmap(flip(rescaled_coeffs(:,1:freq_lim*10+1)),'GridVisible','off','Colormap',redbluecmap(11));
+%h.Colormap = turbo;
+xlabel('Frequency (Hz)')
+ylabel('Number of Bands')
+title(['RCS02 Band Search - Logistic Regression - Key ' num2str(key)])
+frequencies = cellfun(@num2str, num2cell(key_struct.F(1,1:freq_lim*10+1)), 'UniformOutput', false);
+frequencies = string(frequencies);
+frequencies(mod(key_struct.F(1,1:freq_lim*10+1),5) ~= 0) = " ";
+h.XDisplayLabels = frequencies;
+band_sizes = double((num_bands));
+band_sizes(mod(band_sizes,5) ~= 0) = " ";
+band_sizes = string(band_sizes)';
+band_sizes = flip(band_sizes);
+h.YDisplayLabels = band_sizes;
+subplot(1,3,3)
+p = scatter(accuracy_map, num_bands,'black','filled');
+rotate(p,[0 0 1],90)
+xlim([60 80])
+ylim([0-step/2 num_bands(end)+step/2])
+hold on
+xlabel('Accuracy(%)')
+set(gca,'YTickLabel',[]);
+line([average_accuracy average_accuracy], [0-step/2 num_bands(end)+step/2], 'LineStyle', '--', 'Color', 'r');
+xlim([min(accuracy_map)-5, max(average_accuracy,max(accuracy_map))+5])
+
+end

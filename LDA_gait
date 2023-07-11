@@ -1,0 +1,89 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Sun Jul  9 15:47:56 2023
+
+@author: Rithvik
+"""
+
+import numpy as np
+import pandas as pd
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+from sklearn.model_selection import cross_val_score
+from sklearn.model_selection import RepeatedStratifiedKFold
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay, roc_curve, auc
+import matplotlib.pyplot as plt
+from sklearn.preprocessing import StandardScaler
+
+data = pd.read_csv('/Users/Rithvik/Documents/UCSF/Research/wang_lab/Data/RCS_02/PSD Analysis/prepoststim/feature_table_dbhz_1_2_3.csv')
+
+x = data.iloc[:, :-1]
+y = data.iloc[:,-1]
+
+scaler = StandardScaler()
+scaler.fit(x)
+x = scaler.transform(x)
+
+cv = RepeatedStratifiedKFold(n_splits=10, n_repeats=5, random_state=1)
+model = LinearDiscriminantAnalysis()
+scores = cross_val_score(model, x, y, scoring='accuracy', cv=cv, n_jobs=-1)
+print('Mean accuracy is', 100*np.mean(scores))
+
+model.fit(x, y)
+y_hat = model.predict(x)
+tn, fp, fn, tp = confusion_matrix(y, y_hat).ravel()
+sensitivity = tp / (tp + fn)
+specificity = tn / (tn + fp)
+ppv = tp / (tp + fp)
+accuracy = (tp + tn) / (tp + tn + fp + fn)
+
+cm = confusion_matrix(y, y_hat)
+colormap = 'Blues'
+disp = ConfusionMatrixDisplay(confusion_matrix=cm)
+disp.plot(cmap=colormap)
+class_names = ["Non-Gait", "Gait"]
+tick_marks = range(len(class_names))
+plt.xticks(tick_marks, class_names)
+plt.yticks(tick_marks, class_names)
+plt.show()
+
+fpr, tpr, thresholds = roc_curve(y,y_hat)
+roc_auc = auc(fpr, tpr)
+plt.plot(fpr, tpr, label='ROC curve (AUC = %0.2f)' % roc_auc)
+plt.plot([0, 1], [0, 1], 'k--')  # Diagonal line representing random guessing
+plt.xlabel('False Positive Rate (FPR)')
+plt.ylabel('True Positive Rate (TPR)')
+plt.title('Receiver Operating Characteristic (ROC) Curve')
+plt.legend(loc='lower right')
+plt.show()
+
+
+num_keys = 3
+bars_per_group = 6
+feature_weights = model.coef_
+colors = ['red', 'green', 'blue']
+labels = ['Key 1', 'Key 2', 'Key 3']
+fig, ax = plt.subplots()
+
+x = data.iloc[:, :-1]
+for i in range(num_keys):
+    start_idx = i * bars_per_group
+    end_idx = (i + 1) * bars_per_group
+    ax.bar(x.columns[start_idx:end_idx], feature_weights[0][start_idx:end_idx], color=colors[i], label = labels[i])
+    
+plt.xticks(rotation='vertical')
+plt.xlabel('Features')
+plt.ylabel('Weights')
+plt.title('LDA Feature Weights')
+plt.legend()
+plt.show()
+
+
+    
+    
+    
+    
+    
+    
+    
+    
