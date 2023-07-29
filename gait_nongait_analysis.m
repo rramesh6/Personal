@@ -1,14 +1,18 @@
+% add path to all the functions used in this analysis 
 scripts_path = '/Users/Rithvik/Documents/UCSF/Research/wang_lab/Scripts';
 addpath(scripts_path);
 clear scripts_path;
 
-path = '/Volumes/dwang3_shared/Patient Data/RC+S Data/gait_RCS_02/Rover/Data/Aligned Data';
+% set path to location of aligned data 
+path = '/Volumes/dwang3_shared/Patient Data/RC+S Data/gait_RCS_05/Rover/Data/Aligned Data';
 files = dir(fullfile(path,'*.mat'));
 names = {files.name};
 addpath(path);
 
-rover_stack = rover_report('RCS_02');
+% read rover excel files for specified subject 
+rover_stack = rover_report('RCS_05');
 
+% create some empty matrices for storing the PSD information 
 P_gait_0 = [];
 F_gait_0 = [];
 chunks_gait_0 = [];
@@ -37,7 +41,17 @@ P_nongait_3 = [];
 F_nongait_3 = [];
 chunks_nongait_3 = [];
 
-for i = 14:24
+% coh_1_2_gait = [];
+% coh_2_3_gait = [];
+% coh_1_3_gait = [];
+% coh_1_2_nongait = [];
+% coh_2_3_nongait = [];
+% coh_1_3_nongait = [];
+
+
+% Use anything in i = 14:24 for RCS-02 pre-stim data, everything else = post 
+
+for i = 2
     file = names{i};
     update = ['Processing alignment for ' num2str(file)];
     disp(update)
@@ -47,14 +61,17 @@ for i = 14:24
     post_align_struct = label_rover(post_align_struct,rover_stack);
     update = ['Chunking ' num2str(file)];
     disp(update)
-    post_align_struct = chunk(post_align_struct,10,1,0);
+    post_align_struct = chunk(post_align_struct,10,1,1);
     update = ['Filtering ' num2str(file)];
     disp(update)
-    post_align_struct = filter_lfp(post_align_struct,1,200,0);
+    post_align_struct = filter_lfp(post_align_struct,1,120,1);
     update = ['Analyzing ' num2str(file)];
     disp(update)
+    
+    % specify which side to run: 0 = left, 1 = right
+    side = 0; 
 
-    [P_gait_0_temp,F_gait_0_temp,chunks_gait_0_temp,P_nongait_0_temp,F_nongait_0_temp,chunks_nongait_0_temp] = psd_analysis(post_align_struct,0,0);
+    [P_gait_0_temp,F_gait_0_temp,chunks_gait_0_temp,P_nongait_0_temp,F_nongait_0_temp,chunks_nongait_0_temp] = psd_analysis(post_align_struct,0,0,side);
     P_gait_0 = [P_gait_0 P_gait_0_temp];
     F_gait_0 = [F_gait_0 F_gait_0_temp];
     chunks_gait_0 = [chunks_gait_0 chunks_gait_0_temp];
@@ -62,7 +79,7 @@ for i = 14:24
     F_nongait_0 = [F_nongait_0 F_nongait_0_temp];
     chunks_nongait_0 = [chunks_nongait_0 chunks_nongait_0_temp];
 
-    [P_gait_1_temp,F_gait_1_temp,chunks_gait_1_temp,P_nongait_1_temp,F_nongait_1_temp,chunks_nongait_1_temp] = psd_analysis(post_align_struct,1,0);
+    [P_gait_1_temp,F_gait_1_temp,chunks_gait_1_temp,P_nongait_1_temp,F_nongait_1_temp,chunks_nongait_1_temp] = psd_analysis(post_align_struct,1,0,side);
     P_gait_1 = [P_gait_1 P_gait_1_temp];
     F_gait_1 = [F_gait_1 F_gait_1_temp];
     chunks_gait_1 = [chunks_gait_1 chunks_gait_1_temp];
@@ -70,7 +87,7 @@ for i = 14:24
     F_nongait_1 = [F_nongait_1 F_nongait_1_temp];
     chunks_nongait_1 = [chunks_nongait_1 chunks_nongait_1_temp];
 
-    [P_gait_2_temp,F_gait_2_temp,chunks_gait_2_temp,P_nongait_2_temp,F_nongait_2_temp,chunks_nongait_2_temp] = psd_analysis(post_align_struct,2,0);
+    [P_gait_2_temp,F_gait_2_temp,chunks_gait_2_temp,P_nongait_2_temp,F_nongait_2_temp,chunks_nongait_2_temp] = psd_analysis(post_align_struct,2,0,side);
     P_gait_2 = [P_gait_2 P_gait_2_temp];
     F_gait_2 = [F_gait_2 F_gait_2_temp];
     chunks_gait_2 = [chunks_gait_2 chunks_gait_2_temp];
@@ -78,7 +95,7 @@ for i = 14:24
     F_nongait_2 = [F_nongait_2 F_nongait_2_temp];
     chunks_nongait_2 = [chunks_nongait_2 chunks_nongait_2_temp];
 
-    [P_gait_3_temp,F_gait_3_temp,chunks_gait_3_temp,P_nongait_3_temp,F_nongait_3_temp,chunks_nongait_3_temp] = psd_analysis(post_align_struct,3,0);
+    [P_gait_3_temp,F_gait_3_temp,chunks_gait_3_temp,P_nongait_3_temp,F_nongait_3_temp,chunks_nongait_3_temp] = psd_analysis(post_align_struct,3,0,side);
     P_gait_3 = [P_gait_3 P_gait_3_temp];
     F_gait_3 = [F_gait_3 F_gait_3_temp];
     chunks_gait_3 = [chunks_gait_3 chunks_gait_3_temp];
@@ -86,9 +103,27 @@ for i = 14:24
     F_nongait_3 = [F_nongait_3 F_nongait_3_temp];
     chunks_nongait_3 = [chunks_nongait_3 chunks_nongait_3_temp];
 
+%     [C_1_2_gait, C_2_3_gait, C_1_3_gait, C_1_2_nongait, C_2_3_nongait, C_1_3_nongait] = coherence_analysis(post_align_struct);
+% 
+%     coh_1_2_gait = [coh_1_2_gait C_1_2_gait];
+%     coh_2_3_gait = [coh_2_3_gait C_2_3_gait];
+%     coh_1_3_gait = [coh_1_3_gait C_1_3_gait];
+%     coh_1_2_nongait = [coh_1_2_nongait C_1_2_nongait];
+%     coh_2_3_nongait = [coh_2_3_nongait C_2_3_nongait];
+%     coh_1_3_nongait = [coh_1_3_nongait C_1_3_nongait];
+
+
 end
 
 %% Create structures
+
+RCS02_test_key1 = struct();
+RCS02_test_key1.P_gait_1 = P_gait_1;
+RCS02_test_key1.F_gait_1 = F_gait_1;
+RCS02_test_key1.chunks_gait_1 = chunks_gait_1;
+RCS02_test_key1.P_nongait_1 = P_nongait_1;
+RCS02_test_key1.F_nongait_1 = F_nongait_1;
+RCS02_test_key1.chunks_nongait_1 = chunks_nongait_1;
 
 RCS02_prestim_key0 = struct();
 RCS02_prestim_key0.P_gait_0 = P_gait_0;

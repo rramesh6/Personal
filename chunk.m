@@ -1,5 +1,8 @@
 function post_align_struct = chunk(post_align_struct, period, tolerance, fig)
 
+% FOR RCS_02, REACTIVATE THE Z_SCORE SECTIONS
+% FOR RCS_05, DEACTIVATE THE Z_SCORE SECTIONS
+
 post_align_struct.period = period; 
 
 % chunk left leg data
@@ -48,13 +51,13 @@ for i = 1:num_periods
     if rcs_loss_tester < 0.99*65*period
         post_align_struct.l_gait_periods.Gait(i) = 2;
     end
-    [~,lfp_loss_test_start_idx] = min(abs(post_align_struct.l_rcs_lfp.NewTime - start_idx));
-    [~,lfp_loss_test_end_idx] = min(abs(post_align_struct.l_rcs_lfp.NewTime - end_idx));
-    lfp_loss_tester = lfp_loss_test_end_idx - lfp_loss_test_start_idx;
-    lfp_loss_store = [lfp_loss_store; lfp_loss_tester];
-    if lfp_loss_tester < 0.99*500*period
-        post_align_struct.l_gait_periods.Gait(i) = 2;
-    end
+%     [~,lfp_loss_test_start_idx] = min(abs(post_align_struct.l_rcs_lfp.NewTime - start_idx));
+%     [~,lfp_loss_test_end_idx] = min(abs(post_align_struct.l_rcs_lfp.NewTime - end_idx));
+%     lfp_loss_tester = lfp_loss_test_end_idx - lfp_loss_test_start_idx;
+%     lfp_loss_store = [lfp_loss_store; lfp_loss_tester];
+%     if lfp_loss_tester < 0.99*500*period
+%         post_align_struct.l_gait_periods.Gait(i) = 2;
+%     end
     %post_align_struct.l_gait_periods.Gait(i) = round(mean(post_align_struct.l_gait.Gait(start_idx:end_idx)));
 end
 
@@ -73,12 +76,12 @@ end
 % end
 % 
 
-z_scored_chunk_means = zscore(chunk_mean_store);
-for i = 1:length(post_align_struct.l_gait_periods.Gait)
-    if z_scored_chunk_means(i) < -1.5 || z_scored_chunk_means(i) > 1.5 
-        post_align_struct.l_gait_periods.Gait(i) = 2;
-    end
-end
+% z_scored_chunk_means = zscore(chunk_mean_store);
+% for i = 1:length(post_align_struct.l_gait_periods.Gait)
+%     if z_scored_chunk_means(i) < -1.5 || z_scored_chunk_means(i) > 1.5 
+%         post_align_struct.l_gait_periods.Gait(i) = 2;
+%     end
+% end
 
 % Find indices of zero elements
 zero_indices = find(post_align_struct.l_gait_periods.Gait == 0);
@@ -165,7 +168,7 @@ if fig == 1 || nargin == 2
         y = 1;
         width = post_align_struct.l_gait_periods.NewTime_end(i)-post_align_struct.l_gait_periods.NewTime_start(i);
         height = 1;
-        if rcs_loss_store(i)< 0.95*max(rcs_loss_store) || rover_loss_store(i)< 0.95*max(rover_loss_store) || lfp_loss_store(i) < 0.95*max(lfp_loss_store)
+        if rcs_loss_store(i)< 0.95*max(rcs_loss_store) || rover_loss_store(i)< 0.95*max(rover_loss_store)  % || lfp_loss_store(i) < 0.95*max(lfp_loss_store)
             rectangle('Position',[x,y,width,height],'FaceColor',[1, 0, 0, 1],'EdgeColor','none');
         end
         if z_scored_chunk_means(i) > 1.5 || z_scored_chunk_means(i) < -1.5
@@ -212,13 +215,13 @@ for i = 1:num_periods
     if rcs_loss_tester < 0.99*65*period
         post_align_struct.r_gait_periods.Gait(i) = 2;
     end
-    [~,lfp_loss_test_start_idx] = min(abs(post_align_struct.l_rcs_lfp.NewTime - start_idx));
-    [~,lfp_loss_test_end_idx] = min(abs(post_align_struct.l_rcs_lfp.NewTime - end_idx));
-    lfp_loss_tester = lfp_loss_test_end_idx - lfp_loss_test_start_idx;
-    lfp_loss_store = [lfp_loss_store; lfp_loss_tester];
-    if lfp_loss_tester < 0.99*500*period
-        post_align_struct.r_gait_periods.Gait(i) = 2;
-    end
+%     [~,lfp_loss_test_start_idx] = min(abs(post_align_struct.l_rcs_lfp.NewTime - start_idx));
+%     [~,lfp_loss_test_end_idx] = min(abs(post_align_struct.l_rcs_lfp.NewTime - end_idx));
+%     lfp_loss_tester = lfp_loss_test_end_idx - lfp_loss_test_start_idx;
+%     lfp_loss_store = [lfp_loss_store; lfp_loss_tester];
+%     if lfp_loss_tester < 0.99*500*period
+%         post_align_struct.r_gait_periods.Gait(i) = 2;
+%     end
     %post_align_struct.r_gait_periods.Gait(i) = round(mean(post_align_struct.r_gait.Gait(start_idx:end_idx)));
 end
 
@@ -261,12 +264,12 @@ end
 %     end
 % end
 
-z_scored_chunk_means = zscore(chunk_mean_store);
-for i = 1:(min(length(post_align_struct.r_gait_periods.Gait),length(z_scored_chunk_means)))
-    if z_scored_chunk_means(i) < -1.5 || z_scored_chunk_means(i) > 1.5 
-        post_align_struct.r_gait_periods.Gait(i) = 2;
-    end
-end
+% z_scored_chunk_means = zscore(chunk_mean_store);
+% for i = 1:(min(length(post_align_struct.r_gait_periods.Gait),length(z_scored_chunk_means)))
+%     if z_scored_chunk_means(i) < -1.5 || z_scored_chunk_means(i) > 1.5 
+%         post_align_struct.r_gait_periods.Gait(i) = 2;
+%     end
+% end
 
 % Find indices of zero elements
 zero_indices = find(post_align_struct.r_gait_periods.Gait == 0);
@@ -353,7 +356,7 @@ if fig == 1 || nargin == 2
         y = 1;
         width = post_align_struct.r_gait_periods.NewTime_end(i)-post_align_struct.r_gait_periods.NewTime_start(i);
         height = 1;
-        if rcs_loss_store(i)< 0.95*max(rcs_loss_store) || rover_loss_store(i)< 0.95*max(rover_loss_store) || lfp_loss_store(i) < 0.95*max(lfp_loss_store)
+        if rcs_loss_store(i)< 0.95*max(rcs_loss_store) || rover_loss_store(i)< 0.95*max(rover_loss_store) % || lfp_loss_store(i) < 0.95*max(lfp_loss_store)
             rectangle('Position',[x,y,width,height],'FaceColor',[1, 0, 0, 1],'EdgeColor','none');
         end
         if z_scored_chunk_means(i) > 1.5 || z_scored_chunk_means(i) < -1.5
