@@ -80,6 +80,11 @@ if isfield(aligned_data,"right_LFP_table") == 1
         linkaxes(ax,'x');
     end
 
+    post_align_struct.right_accel_taxis = ((post_align_struct.r_rcs_accel.DerivedTime - post_align_struct.r_rcs_accel.DerivedTime(1))/1000);
+    post_align_struct.left_accel_taxis = ((post_align_struct.l_rcs_accel.DerivedTime - post_align_struct.l_rcs_accel.DerivedTime(1))/1000);
+    post_align_struct.right_taxis = ((post_align_struct.r_rcs_lfp.DerivedTime - post_align_struct.r_rcs_lfp.DerivedTime(1))/1000);
+    post_align_struct.left_taxis = ((post_align_struct.l_rcs_lfp.DerivedTime - post_align_struct.l_rcs_lfp.DerivedTime(1))/1000);
+
 else 
 
     % create new time stream where t=0 is start of recordings (alignment point)
@@ -136,6 +141,12 @@ else
         post_align_struct.year = 2023;
     end
 
+    post_align_struct.left_accel_taxis = ((post_align_struct.l_rcs_accel.DerivedTime - post_align_struct.l_rcs_accel.DerivedTime(1))/1000);
+    post_align_struct.left_taxis = ((post_align_struct.l_rcs_lfp.DerivedTime - post_align_struct.l_rcs_lfp.DerivedTime(1))/1000);
+
 end 
+
+post_align_struct.DeviceSettings = aligned_data.DeviceSettings;
+
 end
 
