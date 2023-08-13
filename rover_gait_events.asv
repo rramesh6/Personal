@@ -9,7 +9,7 @@ end
 in_struct.Rover.Left.taxis = seconds(in_struct.Rover.Left.DateTime - in_struct.Rover.Left.DateTime(1));
 in_struct.Rover.Right.taxis = seconds(in_struct.Rover.Right.DateTime - in_struct.Rover.Right.DateTime(1));
 
-% Troubleshooting
+% LHS Troubleshooting
 filtered_signal = bandpass(in_struct.Rover.Left.LinearAccelX,[0.5 3],100);
 minIndices = islocalmin(filtered_signal,"MinProminence",1500);
 minTimes = in_struct.Rover.Left.taxis(minIndices);
@@ -29,19 +29,26 @@ for i = 2:size(in_struct.Rover.Left.taxis,1)-1
         LHS_times = [LHS_times; temp_LHS];
     end
 end
-LHS_times_final = [];
+LHS_times_finalish = [];
 for i = 1:size(LHS_times,1)-1
     if LHS_times(i+1) - LHS_times(i) <= 0.2
        temp_LHS = mean([LHS_times(i) LHS_times(i+1)]);
-       LHS_times_final = [LHS_times_final; temp_LHS];
+       LHS_times_finalish = [LHS_times_finalish; temp_LHS];
     else
-       LHS_times_final = [LHS_times_final; LHS_times(i)];
+       LHS_times_finalish = [LHS_times_finalish; LHS_times(i)];
     end
 end
-for i = 1:size(LHS_times_final,1)-1
-    LHS_1 = LHS_times_final(i);
-    LHS_2 = LHS_times_final(i+1);
-    peaks_isolate = maxTimes(maxTimes > )
+LHS_times_final = [];
+for i = 1:size(LHS_times_finalish,1)-1
+    LHS_1 = LHS_times_finalish(i);
+    LHS_2 = LHS_times_finalish(i+1);
+    peaks_isolate = maxTimes(maxTimes > LHS_1 & maxTimes < LHS_2);
+    if size(peaks_isolate,1) == 0
+        continue
+    else 
+        temp_LHS = LHS_times_finalish(i);
+        LHS_times_final = [LHS_times_final; temp_LHS];
+    end
 end
 for i = 1:size(LHS_times_final,1)-1
     plot([LHS_times_final(i) LHS_times_final(i)], [-8000 10000],'r')
@@ -57,24 +64,153 @@ end
 hold off
 linkaxes(ax,'x')
 
-% % First pass LHS detection
-% filtered_signal = bandpass(in_struct.Rover.Left.LinearAccelX,[0.5 3],100);
-% LHS_times = [];
-% for i = 2:size(in_struct.Rover.Left.taxis,1)-1
-%     if filtered_signal(i-1) > -313 & filtered_signal(i) < -313 & filtered_signal(i+1) < -313
-%         temp_LHS = in_struct.Rover.Left.taxis(i);
-%         LHS_times = [LHS_times; temp_LHS];
+% RHS Troubleshooting
+filtered_signal = bandpass(in_struct.Rover.Right.LinearAccelX,[0.5 3],100);
+minIndices = islocalmin(filtered_signal,"MinProminence",1500);
+minTimes = in_struct.Rover.Right.taxis(minIndices);
+maxIndices = islocalmax(filtered_signal,"MinProminence",1500);
+maxTimes = in_struct.Rover.Right.taxis(maxIndices);
+figure()
+ax(1) = subplot(211);
+plot(in_struct.Rover.Right.taxis,in_struct.Rover.Right.LinearAccelX,'k')
+hold on
+title('R RCS Accel')
+RHS_times = [];
+for i = 2:size(in_struct.Rover.Right.taxis,1)-1
+    dist_to_max = min(abs(maxTimes - in_struct.Rover.Right.taxis(i)));
+    dist_to_min = min(abs(minTimes - in_struct.Rover.Right.taxis(i)));
+    if filtered_signal(i-1) < 917 & filtered_signal(i) > 917 & filtered_signal(i+1) > 917 
+        temp_RHS = in_struct.Rover.Right.taxis(i);
+        RHS_times = [RHS_times; temp_RHS];
+    end
+end
+RHS_times_finalish = [];
+for i = 1:size(RHS_times,1)-1
+    if RHS_times(i+1) - RHS_times(i) <= 0.2
+       temp_RHS = mean([RHS_times(i) RHS_times(i+1)]);
+       RHS_times_finalish = [RHS_times_finalish; temp_RHS];
+    else
+       RHS_times_finalish = [RHS_times_finalish; RHS_times(i)];
+    end
+end
+RHS_times_final = [];
+for i = 1:size(RHS_times_finalish,1)-1
+    RHS_1 = RHS_times_finalish(i);
+    RHS_2 = RHS_times_finalish(i+1);
+    peaks_isolate = maxTimes(maxTimes > RHS_1 & maxTimes < RHS_2);
+    if size(peaks_isolate,1) == 0
+        continue
+    else 
+        temp_RHS = RHS_times_finalish(i);
+        RHS_times_final = [RHS_times_final; temp_RHS];
+    end
+end
+for i = 1:size(RHS_times_final,1)-1
+    plot([RHS_times_final(i) RHS_times_final(i)], [-8000 10000],'r')
+end
+hold off
+ax(2) = subplot(212);
+plot(in_struct.Rover.Right.taxis,filtered_signal,'k')
+hold on
+title('Filtered Signal')
+for i = 1:size(RHS_times_final,1)-1
+    plot([RHS_times_final(i) RHS_times_final(i)], [-8000 10000],'r')
+end
+hold off
+linkaxes(ax,'x')
+
+% % First pass RHS detection
+% filtered_signal = bandpass(in_struct.Rover.Right.LinearAccelX,[0.5 3],100);
+% RHS_times = [];
+% for i = 2:size(in_struct.Rover.Right.taxis,1)-1
+%     if filtered_signal(i-1) < 917 & filtered_signal(i) > 917 & filtered_signal(i+1) > 917
+%         temp_RHS = in_struct.Rover.Right.taxis(i);
+%         RHS_times = [RHS_times; temp_RHS];
 %     end
 % end
-% LHS_times_final = [];
-% for i = 1:size(LHS_times,1)-1
-%     if LHS_times(i+1) - LHS_times(i) <= 0.2
-%        temp_LHS = mean([LHS_times(i) LHS_times(i+1)]);
-%        LHS_times_final = [LHS_times_final; temp_LHS];
+% RHS_times_final = [];
+% for i = 1:size(RHS_times,1)-1
+%     if RHS_times(i+1) - RHS_times(i) <= 0.2
+%        temp_RHS = mean([RHS_times(i) RHS_times(i+1)]);
+%        RHS_times_final = [RHS_times_final; temp_RHS];
 %     else
-%        LHS_times_final = [LHS_times_final; LHS_times(i)];
+%        RHS_times_final = [RHS_times_final; RHS_times(i)];
 %     end
 % end
+
+% % First pass RTO detection 
+% filtered_signal = bandpass(in_struct.Rover.Right.LinearAccelX,[0.5 2],100);
+% RTO_times = [];
+% for i = 2:size(in_struct.Rover.Right.taxis,1)-1
+%     if filtered_signal(i-1) < -93.5 & filtered_signal(i) > -93.5 & filtered_signal(i+1) > -93.5
+%         temp_RTO = in_struct.Rover.Right.taxis(i);
+%         RTO_times = [RTO_times; temp_RTO];
+%     end
+% end
+% RTO_times_final = [];
+% for i = 1:size(RTO_times,1)-1
+%     if RTO_times(i+1) - RTO_times(i) <= 0.01
+%        temp_RTO = mean([RTO_times(i) RTO_times(i+1)]);
+%        RTO_times_final = [RTO_times_final; temp_RTO];
+%     else
+%        RTO_times_final = [RTO_times_final; RTO_times(i)];
+%     end
+% end
+
+% % RTO Troubleshooting
+% filtered_signal = bandpass(in_struct.Rover.Right.LinearAccelX,[0.5 2],100);
+% minIndices = islocalmin(filtered_signal,"MinProminence",1500);
+% minTimes = in_struct.Rover.Left.taxis(minIndices);
+% maxIndices = islocalmax(filtered_signal,"MinProminence",1500);
+% maxTimes = in_struct.Rover.Left.taxis(maxIndices);
+% figure()
+% ax(1) = subplot(211);
+% plot(in_struct.Rover.Right.taxis,in_struct.Rover.Right.LinearAccelX,'k')
+% hold on
+% title('R RCS Accel')
+% RTO_times = [];
+% for i = 2:size(in_struct.Rover.Right.taxis,1)-1
+%     dist_to_max = min(abs(maxTimes - in_struct.Rover.Right.taxis(i)));
+%     dist_to_min = min(abs(minTimes - in_struct.Rover.Right.taxis(i)));
+%     if filtered_signal(i-1) < -93.5 & filtered_signal(i) > -93.5 & filtered_signal(i+1) > -93.5 & dist_to_min < dist_to_max
+%         temp_RTO = in_struct.Rover.Right.taxis(i);
+%         RTO_times = [RTO_times; temp_RTO];
+%     end
+% end
+% RTO_times_finalish = [];
+% for i = 1:size(RTO_times,1)-1
+%     if RTO_times(i+1) - RTO_times(i) <= 0.2
+%        temp_RTO = mean([RTO_times(i) RTO_times(i+1)]);
+%        RTO_times_finalish = [RTO_times_finalish; temp_RTO];
+%     else
+%        RTO_times_finalish = [RTO_times_finalish; RTO_times(i)];
+%     end
+% end
+% RTO_times_final = [];
+% for i = 1:size(RTO_times_finalish,1)-1
+%     RTO_1 = RTO_times_finalish(i);
+%     RTO_2 = RTO_times_finalish(i+1);
+%     peaks_isolate = maxTimes(maxTimes > RTO_1 & maxTimes < RTO_2);
+%     if size(peaks_isolate,1) == 0
+%         continue
+%     else 
+%         temp_RTO = RTO_times_finalish(i);
+%         RTO_times_final = [RTO_times_final; temp_RTO];
+%     end
+% end
+% for i = 1:size(RTO_times_final,1)-1
+%     plot([RTO_times_final(i) RTO_times_final(i)], [-8000 10000],'r')
+% end
+% hold off
+% ax(2) = subplot(212);
+% plot(in_struct.Rover.Right.taxis,filtered_signal,'k')
+% hold on
+% title('Filtered Signal')
+% for i = 1:size(RTO_times_final,1)-1
+%     plot([RTO_times_final(i) RTO_times_final(i)], [-8000 10000],'r')
+% end
+% hold off
+% linkaxes(ax,'x')
 
 % First pass LTO detection
 filtered_signal = bandpass(in_struct.Rover.Left.LinearAccelX,[0.5 3],100);
@@ -92,44 +228,6 @@ for i = 1:size(LTO_times,1)-1
        LTO_times_final = [LTO_times_final; temp_LTO];
     else
        LTO_times_final = [LTO_times_final; LTO_times(i)];
-    end
-end
-
-% First pass RHS detection
-filtered_signal = bandpass(in_struct.Rover.Right.LinearAccelX,[0.5 3],100);
-RHS_times = [];
-for i = 2:size(in_struct.Rover.Right.taxis,1)-1
-    if filtered_signal(i-1) < 917 & filtered_signal(i) > 917 & filtered_signal(i+1) > 917
-        temp_RHS = in_struct.Rover.Right.taxis(i);
-        RHS_times = [RHS_times; temp_RHS];
-    end
-end
-RHS_times_final = [];
-for i = 1:size(RHS_times,1)-1
-    if RHS_times(i+1) - RHS_times(i) <= 0.2
-       temp_RHS = mean([RHS_times(i) RHS_times(i+1)]);
-       RHS_times_final = [RHS_times_final; temp_RHS];
-    else
-       RHS_times_final = [RHS_times_final; RHS_times(i)];
-    end
-end
-
-% First pass RTO detection 
-filtered_signal = bandpass(in_struct.Rover.Right.LinearAccelX,[0.5 2],100);
-RTO_times = [];
-for i = 2:size(in_struct.Rover.Right.taxis,1)-1
-    if filtered_signal(i-1) < -93.5 & filtered_signal(i) > -93.5 & filtered_signal(i+1) > -93.5
-        temp_RTO = in_struct.Rover.Right.taxis(i);
-        RTO_times = [RTO_times; temp_RTO];
-    end
-end
-RTO_times_final = [];
-for i = 1:size(RTO_times,1)-1
-    if RTO_times(i+1) - RTO_times(i) <= 0.01
-       temp_RTO = mean([RTO_times(i) RTO_times(i+1)]);
-       RTO_times_final = [RTO_times_final; temp_RTO];
-    else
-       RTO_times_final = [RTO_times_final; RTO_times(i)];
     end
 end
 
@@ -250,5 +348,9 @@ gait_events_array = [LHS RTO RHS LTO];
 gait_events = array2table(gait_events_array,'VariableNames',{'LHS','RTO','RHS','LTO'});
 out_struct = in_struct;
 out_struct.gait_events = gait_events;
+out_struct.left_LFP_table = out_struct.l_rcs_lfp(:,1:12);
+if isfield(out_struct,'r_rcs_lfp')
+    out_struct.right_LFP_table = out_struct.r_rcs_lfp(:,1:12);
+end
 
 end
