@@ -160,9 +160,9 @@ linkaxes(ax,'x')
 % RTO Troubleshooting
 filtered_signal = bandpass(in_struct.Rover.Right.LinearAccelX,[0.5 2],100);
 minIndices = islocalmin(filtered_signal,"MinProminence",1500);
-minTimes = in_struct.Rover.Left.taxis(minIndices);
+minTimes = in_struct.Rover.Right.taxis(minIndices);
 maxIndices = islocalmax(filtered_signal,"MinProminence",1500);
-maxTimes = in_struct.Rover.Left.taxis(maxIndices);
+maxTimes = in_struct.Rover.Right.taxis(maxIndices);
 figure()
 ax(1) = subplot(211);
 plot(in_struct.Rover.Right.taxis,in_struct.Rover.Right.LinearAccelX,'k')
@@ -172,7 +172,7 @@ RTO_times = [];
 for i = 2:size(in_struct.Rover.Right.taxis,1)-1
     dist_to_max = min(abs(maxTimes - in_struct.Rover.Right.taxis(i)));
     dist_to_min = min(abs(minTimes - in_struct.Rover.Right.taxis(i)));
-    if filtered_signal(i-1) < -93.5 & filtered_signal(i) > -93.5 & filtered_signal(i+1) > -93.5 
+    if filtered_signal(i-1) < -93.5 & filtered_signal(i) > -93.5 & filtered_signal(i+1) > -93.5  & dist_to_max > dist_to_min
         temp_RTO = in_struct.Rover.Right.taxis(i);
         RTO_times = [RTO_times; temp_RTO];
     end
@@ -279,6 +279,32 @@ for i = 1:size(LHS_times_final,1)-1
     LTO = [LTO; LTO_temp];
 end
 
+gait_events_temp = [LHS RTO RHS LTO]; 
+gait_events_clean_1 = [];
+for i = 1:size(gait_events_temp,1)
+    if gait_events_temp(i,1) < gait_events_temp(i,2) < gait_events_temp(i,3) < gait_events_temp(i,4)
+        gait_events_clean_1 = [gait_events_clean_1; gait_events_temp(i,:)];
+    else
+        continue
+    end
+end
+
+mean_LHS_LTO = mean(gait_events_clean_1(:,4) - gait_events_clean_1(:,1));
+std_LHS_LTO = std(gait_events_clean_1(:,4) - gait_events_clean_1(:,1));
+gait_events_clean_2 = [];
+for i = 1:size(gait_events_clean_1,1)
+    if (gait_events_clean_1(i,4) - gait_events_clean_1(i,1)) >= mean_LHS_LTO + 2 * std_LHS_LTO | (gait_events_clean_1(i,4) - gait_events_clean_1(i,1)) <= mean_LHS_LTO - 2 * std_LHS_LTO 
+        continue
+    else
+        gait_events_clean_2 = [gait_events_clean_2; gait_events_clean_1(i,:)];
+    end
+end
+
+LHS = gait_events_clean_2(:,1);
+RTO = gait_events_clean_2(:,2);
+RHS = gait_events_clean_2(:,3);
+LTO = gait_events_clean_2(:,4);
+
 % Plot results 
 figure()
 ax(1) = subplot(411);
@@ -348,7 +374,9 @@ gait_events_array = [LHS RTO RHS LTO];
 gait_events = array2table(gait_events_array,'VariableNames',{'LHS','RTO','RHS','LTO'});
 out_struct = in_struct;
 out_struct.gait_events = gait_events;
-out_struct.left_LFP_table = out_struct.l_rcs_lfp(:,1:12);
+if isfield(out_struct,'l_rcs_lfp')
+    out_struct.left_LFP_table = out_struct.l_rcs_lfp(:,1:12);
+end
 if isfield(out_struct,'r_rcs_lfp')
     out_struct.right_LFP_table = out_struct.r_rcs_lfp(:,1:12);
 end

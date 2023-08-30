@@ -17,6 +17,7 @@ legend('LH','RH','LT','RT')
 Left_Heel = aligned_data.Delsys.Data.FSR_adapter_15_Left_FSRA_15;
 Left_Heel_Time = aligned_data.Delsys.Time.FSR_adapter_15_Left_FSRA_15;
 LHS = [];
+LH_threshold = 5;
 
 % % Find local maxima
 % maxIndices2 = islocalmax(Left_Heel,"MinProminence",5,...
@@ -38,10 +39,18 @@ LHS = [];
 % xlabel("Left_Heel_Time","Interpreter","none")
 
 for i = 2:size(Left_Heel,1)-1
-    if Left_Heel(i-1) < 5 & Left_Heel(i) > 5 & Left_Heel(i+2) >= Left_Heel(i)
+    if Left_Heel(i-1) < LH_threshold & Left_Heel(i) > LH_threshold & Left_Heel(i+2) >= Left_Heel(i)
         LHS = [LHS; Left_Heel_Time(i)];
     end
 end
+
+LHS_final = LHS;
+for i = 1:size(LHS,1)-1
+    if abs(LHS(i+1) - LHS(i)) < 0.2
+        LHS_final(i+1) = 0;
+    end
+end
+LHS = LHS_final(LHS_final ~= 0);
 
 figure()
 plot(Left_Heel_Time,Left_Heel)
@@ -55,6 +64,7 @@ end
 Left_Toe = aligned_data.Delsys.Data.FSR_adapter_15_Left_FSRD_15;
 Left_Toe_Time = aligned_data.Delsys.Time.FSR_adapter_15_Left_FSRD_15;
 LTO = [];
+LT_threshold = 5;
 
 % % Find local maxima
 % maxIndices2 = islocalmax(Left_Toe,"MinProminence",5,...
@@ -76,7 +86,7 @@ LTO = [];
 % xlabel("Left_Toe_Time","Interpreter","none")
 
 for i = 2:size(Left_Toe,1)-1
-    if Left_Toe(i-1) > 5 & Left_Toe(i) < 5 & Left_Toe(i+2) <= Left_Toe(i)
+    if Left_Toe(i-1) > LT_threshold & Left_Toe(i) < LT_threshold & Left_Toe(i+2) <= Left_Toe(i)
         LTO = [LTO; Left_Toe_Time(i)];
     end
 end
@@ -93,6 +103,7 @@ end
 Right_Heel = aligned_data.Delsys.Data.FSR_adapter_16_Right_FSRA_16;
 Right_Heel_Time = aligned_data.Delsys.Time.FSR_adapter_16_Right_FSRA_16;
 RHS = [];
+RH_threshold = 5;
 
 % % Find local maxima
 % maxIndices2 = islocalmax(Right_Heel,"MinProminence",0.5,...
@@ -114,7 +125,7 @@ RHS = [];
 % xlabel("Right_Heel_Time","Interpreter","none")
 
 for i = 2:size(Right_Heel,1)-1
-    if Right_Heel(i-1) < 5 & Right_Heel(i) > 5 & Right_Heel(i+2) >= Right_Heel(i)
+    if Right_Heel(i-1) < RH_threshold & Right_Heel(i) > RH_threshold & Right_Heel(i+2) >= Right_Heel(i)
         RHS = [RHS; Right_Heel_Time(i)];
     end
 end
@@ -128,9 +139,14 @@ end
 
 %% Detect Right Toe Off 
 
-Right_Toe = aligned_data.Delsys.Data.FSR_adapter_16_Right_FSRD_16;
-Right_Toe_Time = aligned_data.Delsys.Time.FSR_adapter_16_Right_FSRA_16;
+[~, idx] = min(abs(Right_Toe_Time - 102));
+Right_Toe = [aligned_data.Delsys.Data.FSR_adapter_16_Right_FSRD_16(1:idx); aligned_data.Delsys.Data.FSR_adapter_16_Right_FSRD_16(idx+1:end) - 6.25];
+
+% Right_Toe = aligned_data.Delsys.Data.FSR_adapter_16_Right_FSRD_16;
+% Right_Toe_Time = aligned_data.Delsys.Time.FSR_adapter_16_Right_FSRA_16;
 RTO = [];
+RT_threshold = 5;
+
 
 % % Find local maxima
 % RTO_times = islocalmax(Right_Toe,"MinProminence",0.5,...
@@ -152,7 +168,7 @@ RTO = [];
 % xlabel("Right_Toe_Time","Interpreter","none")
 
 for i = 2:size(Right_Toe,1)-1
-    if Right_Toe(i-1) > 5 & Right_Toe(i) < 5 & Right_Toe(i+2) <= Right_Toe(i) 
+    if Right_Toe(i-1) > RT_threshold & Right_Toe(i) < RT_threshold & Right_Toe(i+2) <= Right_Toe(i) 
         RTO = [RTO; Right_Toe_Time(i)];
     end
 end
@@ -181,8 +197,10 @@ for i = 1:size(LHS,1)-1
         continue
     elseif size(RTO_isolate,1) == 1
         RTO_temp = RTO_isolate;
+        start_time = RTO_temp;
     else
-        RTO_temp = RTO_isolate(2);
+        RTO_temp = RTO_isolate(1);
+        start_time = RTO_temp;
     end
 
     RHS_isolate = RHS(RHS > start_time & RHS < end_time);
@@ -190,8 +208,10 @@ for i = 1:size(LHS,1)-1
         continue
     elseif size(RHS_isolate,1) == 1
         RHS_temp = RHS_isolate;
+        start_time = RHS_temp;
     else
-        RHS_temp = RHS_isolate(2);
+        RHS_temp = RHS_isolate(1);
+        start_time = RHS_temp;
     end        
     
     LTO_isolate = LTO(LTO > start_time & LTO < end_time);
@@ -200,7 +220,7 @@ for i = 1:size(LHS,1)-1
     elseif size(LTO_isolate,1) == 1
         LTO_temp = LTO_isolate;
     else
-        LTO_temp = LTO_isolate(2);
+        LTO_temp = LTO_isolate(1);
     end
    
     LHS_final = [LHS_final; LHS_temp];
@@ -312,6 +332,15 @@ next_RTO = RTO(2:end);
 gait_events_array = [first_RTO RHS LTO LHS next_RTO];
 gait_events = array2table(gait_events_array, 'VariableNames',{'RTO','RHS','LTO','LHS','Next RTO'});
 
+%% Clean gait events
+
+% mean_LHS_LTO = mean(gait_events_array(:,4) - gait_events_array(:,1));
+% std_LHS_LTO = std(gait_events_array(:,4) - gait_events_array(:,1));
+% gait_events_array((gait_events_array(:,4) - gait_events_array(:,1)) > mean_LHS_LTO + 2.5*std_LHS_LTO,:) = [];
+
+is_ordered = (gait_events_array(:,4) > gait_events_array(:,3)) & (gait_events_array(:,3) > gait_events_array(:,2)) & (gait_events_array(:,2) > gait_events_array(:,1));
+gait_events_array(~is_ordered, :) = [];
+
 %% %% Plot labeled data 
 
 figure()
@@ -323,6 +352,9 @@ plot(aligned_data.Delsys.Time.FSR_adapter_15_Left_FSRA_15,aligned_data.Delsys.Da
 plot(aligned_data.Delsys.Time.FSR_adapter_16_Right_FSRA_16,aligned_data.Delsys.Data.FSR_adapter_16_Right_FSRD_16,'r:')
 for i = 1:size(gait_events_array,1)
     plot([gait_events_array(i,1) gait_events_array(i,1)], [-5 40], 'k-')
+%     plot([gait_events_array(i,2) gait_events_array(i,2)], [-5 40], 'r-')
+%     plot([gait_events_array(i,3) gait_events_array(i,3)], [-5 40], 'b-')
+%     plot([gait_events_array(i,4) gait_events_array(i,4)], [-5 40], 'c-')
 end
 title('Left Heel Strikes')
 legend('LH','RH','LT','RT')
@@ -342,7 +374,7 @@ hold off
 ax(3) = subplot(2,2,3);
 plot(aligned_data.Delsys.Time.FSR_adapter_15_Left_FSRA_15,aligned_data.Delsys.Data.FSR_adapter_15_Left_FSRA_15,'b')
 hold on
-plot(aligned_data.Delsys.Time.FSR_adapter_16_Right_FSRA_16,aligned_data.Delsys.Data.FSR_adapter_16_Right_FSRA_16,'r')
+plot(aligned_data.Delsys.Time.FSR_adapter_16_Right_FSRA_16,aligned_data.Delsys.Data.FSR_adapter_16_Right_FSRA_16,'r','LineWidth',2)
 plot(aligned_data.Delsys.Time.FSR_adapter_15_Left_FSRA_15,aligned_data.Delsys.Data.FSR_adapter_15_Left_FSRD_15,'b:')
 plot(aligned_data.Delsys.Time.FSR_adapter_16_Right_FSRA_16,aligned_data.Delsys.Data.FSR_adapter_16_Right_FSRD_16,'r:')
 for i = 1:size(gait_events_array,1)
@@ -355,15 +387,87 @@ ax(4) = subplot(2,2,4);
 plot(aligned_data.Delsys.Time.FSR_adapter_15_Left_FSRA_15,aligned_data.Delsys.Data.FSR_adapter_15_Left_FSRA_15,'b')
 hold on
 plot(aligned_data.Delsys.Time.FSR_adapter_16_Right_FSRA_16,aligned_data.Delsys.Data.FSR_adapter_16_Right_FSRA_16,'r')
-plot(aligned_data.Delsys.Time.FSR_adapter_15_Left_FSRA_15,aligned_data.Delsys.Data.FSR_adapter_15_Left_FSRD_15,'b:')
+plot(aligned_data.Delsys.Time.FSR_adapter_15_Left_FSRA_15,aligned_data.Delsys.Data.FSR_adapter_15_Left_FSRD_15,'b:','LineWidth',2)
 plot(aligned_data.Delsys.Time.FSR_adapter_16_Right_FSRA_16,aligned_data.Delsys.Data.FSR_adapter_16_Right_FSRD_16,'r:')
 for i = 1:size(gait_events_array,1)
-    plot([gait_events_array(i,3) gait_events_array(i,3)], [-5 40], 'k-')
+    plot([gait_events_array(i,4) gait_events_array(i,4)], [-5 40], 'k-')
 end
 title('Left Toe Offs')
 legend('LH','RH','LT','RT')
 hold off
 linkaxes(ax,'x')
+
+%% Plot all events on one 
+
+figure()
+plot(aligned_data.Delsys.Time.FSR_adapter_15_Left_FSRA_15,aligned_data.Delsys.Data.FSR_adapter_15_Left_FSRA_15,'b','LineWidth',2)
+hold on
+plot(aligned_data.Delsys.Time.FSR_adapter_16_Right_FSRA_16,aligned_data.Delsys.Data.FSR_adapter_16_Right_FSRA_16,'r')
+plot(aligned_data.Delsys.Time.FSR_adapter_15_Left_FSRA_15,aligned_data.Delsys.Data.FSR_adapter_15_Left_FSRD_15,'b:')
+plot(aligned_data.Delsys.Time.FSR_adapter_16_Right_FSRA_16,aligned_data.Delsys.Data.FSR_adapter_16_Right_FSRD_16,'r:')
+for i = 1:size(gait_events_array,1)
+    plot([gait_events_array(i,1) gait_events_array(i,1)], [-5 40], 'k-')
+    plot([gait_events_array(i,2) gait_events_array(i,2)], [-5 40], 'r-')
+    plot([gait_events_array(i,3) gait_events_array(i,3)], [-5 40], 'b-')
+    plot([gait_events_array(i,4) gait_events_array(i,4)], [-5 40], 'c-')
+end
+title('Left Heel Strikes')
+legend('LH','RH','LT','RT')
+hold off
+
+%% %% Plot RAW labeled data 
+
+figure()
+ax(1) = subplot(2,2,1);
+plot(aligned_data.Delsys.Time.FSR_adapter_15_Left_FSRA_15,aligned_data.Delsys.Data.FSR_adapter_15_Left_FSRA_15,'b','LineWidth',2)
+hold on
+plot(aligned_data.Delsys.Time.FSR_adapter_16_Right_FSRA_16,aligned_data.Delsys.Data.FSR_adapter_16_Right_FSRA_16,'r')
+plot(aligned_data.Delsys.Time.FSR_adapter_15_Left_FSRA_15,aligned_data.Delsys.Data.FSR_adapter_15_Left_FSRD_15,'b:')
+plot(aligned_data.Delsys.Time.FSR_adapter_16_Right_FSRA_16,aligned_data.Delsys.Data.FSR_adapter_16_Right_FSRD_16,'r:')
+for i = 1:size(LHS,1)
+    plot([LHS(i) LHS(i)], [-5 40], 'k-')
+end
+title('Left Heel Strikes')
+legend('LH','RH','LT','RT')
+hold off
+ax(2) = subplot(2,2,2);
+plot(aligned_data.Delsys.Time.FSR_adapter_15_Left_FSRA_15,aligned_data.Delsys.Data.FSR_adapter_15_Left_FSRA_15,'b')
+hold on
+plot(aligned_data.Delsys.Time.FSR_adapter_16_Right_FSRA_16,aligned_data.Delsys.Data.FSR_adapter_16_Right_FSRA_16,'r')
+plot(aligned_data.Delsys.Time.FSR_adapter_15_Left_FSRA_15,aligned_data.Delsys.Data.FSR_adapter_15_Left_FSRD_15,'b:')
+plot(aligned_data.Delsys.Time.FSR_adapter_16_Right_FSRA_16,aligned_data.Delsys.Data.FSR_adapter_16_Right_FSRD_16,'r:','LineWidth',2)
+for i = 1:size(RTO,1)
+    plot([RTO(i) RTO(i)], [-5 40], 'k-')
+end
+title('Right Toe Offs')
+legend('LH','RH','LT','RT')
+hold off
+ax(3) = subplot(2,2,3);
+plot(aligned_data.Delsys.Time.FSR_adapter_15_Left_FSRA_15,aligned_data.Delsys.Data.FSR_adapter_15_Left_FSRA_15,'b')
+hold on
+plot(aligned_data.Delsys.Time.FSR_adapter_16_Right_FSRA_16,aligned_data.Delsys.Data.FSR_adapter_16_Right_FSRA_16,'r','LineWidth',2)
+plot(aligned_data.Delsys.Time.FSR_adapter_15_Left_FSRA_15,aligned_data.Delsys.Data.FSR_adapter_15_Left_FSRD_15,'b:')
+plot(aligned_data.Delsys.Time.FSR_adapter_16_Right_FSRA_16,aligned_data.Delsys.Data.FSR_adapter_16_Right_FSRD_16,'r:')
+for i = 1:size(RHS,1)
+    plot([RHS(i) RHS(i)], [-5 40], 'k-')
+end
+title('Right Heel Strikes')
+legend('LH','RH','LT','RT')
+hold off
+ax(4) = subplot(2,2,4);
+plot(aligned_data.Delsys.Time.FSR_adapter_15_Left_FSRA_15,aligned_data.Delsys.Data.FSR_adapter_15_Left_FSRA_15,'b')
+hold on
+plot(aligned_data.Delsys.Time.FSR_adapter_16_Right_FSRA_16,aligned_data.Delsys.Data.FSR_adapter_16_Right_FSRA_16,'r')
+plot(aligned_data.Delsys.Time.FSR_adapter_15_Left_FSRA_15,aligned_data.Delsys.Data.FSR_adapter_15_Left_FSRD_15,'b:','LineWidth',2)
+plot(aligned_data.Delsys.Time.FSR_adapter_16_Right_FSRA_16,aligned_data.Delsys.Data.FSR_adapter_16_Right_FSRD_16,'r:')
+for i = 1:size(LTO,1)
+    plot([LTO(i) LTO(i)], [-5 40], 'k-')
+end
+title('Left Toe Offs')
+legend('LH','RH','LT','RT')
+hold off
+linkaxes(ax,'x')
+
 
 %% Add table to structure
 

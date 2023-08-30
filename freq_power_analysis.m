@@ -21,6 +21,11 @@ all_f = [delta_f; theta_f; alpha_f; beta_f; low_gamma_f; high_gamma_f];
 bands = {'delta','theta','alpha','beta','low gamma','high gamma'};
 freq_power_table = table('Size',[6,2],'VariableTypes',{'double','double'},'VariableNames',{'Gait','Non-Gait'},'RowNames',bands);
 
+if logtransform == 1
+    P_gait = 10*log10(P_gait);
+    P_nongait = 10*log10(P_nongait);
+end
+
 for i = 1:size(all_f,1)
     [~,start_idx] = min(abs(F_gait(:,1)-all_f(i,1)));
     [~,end_idx] = min(abs(F_gait(:,1)-all_f(i,2)));
@@ -39,10 +44,12 @@ for i = 1:size(all_f,1)
     feature_table(:,i) = [average_power_gait';average_power_nongait'];
 end
 
+% if logtransform == 1
+%     feature_table = 10*log10(feature_table);
+% end
+
 gait_labels = [ones(size(P_gait,2),1); zeros(size(P_nongait,2),1)];
-if logtransform == 1
-    feature_table = 10*log10(feature_table);
-end
+
 feature_table = [feature_table gait_labels];
 
 end
