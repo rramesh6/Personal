@@ -7,14 +7,14 @@ psd_struct.P_nongait = psd_struct_in.(['P_nongait_' num2str(key)]);
 psd_struct.F_nongait = psd_struct_in.(['F_nongait_' num2str(key)]);
 
 %figure()
-title(['RCS02 Average Power Spectral Density (Key ' num2str(key) ')'])
+title(['RCS05 Average Power Spectral Density (Key ' num2str(key) ')'])
 xlabel('Frequency (Hz)')
 ylabel('Power/Frequency (dB/Hz)')
 hold on 
 for i = 1:size(psd_struct.P_gait,2)
-    plot(psd_struct.F_gait(:,1),10*log10(psd_struct.P_gait(:,i)),"Color",[0 0 1 0.002],"LineWidth",0.0001)
+    plot(psd_struct.F_gait(:,1),10*log10(psd_struct.P_gait(:,i)),"Color",[0 0 1 0.002],"LineWidth",0.00001)
 end
-g = plot(psd_struct.F_gait(:,1),10*log10(mean(psd_struct.P_gait,2)),'b','LineWidth',2);
+g = plot(psd_struct.F_gait(:,1),mean(10*log10(psd_struct.P_gait),2),'b','LineWidth',2);
 std_gait = std(psd_struct.P_gait,[],2);
 % se_gait = std_gait / sqrt(size(psd_struct.P_gait,2));
 % alpha = 0.05;
@@ -25,9 +25,9 @@ std_gait = std(psd_struct.P_gait,[],2);
 % y_conf_gait = [lower_gait', fliplr((upper_gait)')];
 % fill(x_conf_gait,y_conf_gait,'b','FaceAlpha',0.3,'EdgeColor','none')
 for i = 1:size(psd_struct.P_nongait,2)
-    plot(psd_struct.F_gait(:,1),10*log10(psd_struct.P_nongait(:,i)),"Color",[1 0 0 0.002],"LineWidth",0.0001)
+    plot(psd_struct.F_gait(:,1),10*log10(psd_struct.P_nongait(:,i)),"Color",[1 0 0 0.002],"LineWidth",0.00001)
 end
-ng = plot(psd_struct.F_nongait(:,1),10*log10(mean(psd_struct.P_nongait,2)),'r','LineWidth',2);
+ng = plot(psd_struct.F_nongait(:,1),mean(10*log10(psd_struct.P_nongait),2),'Color',[0.75 0 0],'LineWidth',2);
 % std_nongait = std(psd_struct.P_nongait,[],2);
 % se_nongait = std_nongait / sqrt(size(psd_struct.P_nongait,2));
 % alpha = 0.05;
@@ -45,7 +45,7 @@ ng = plot(psd_struct.F_nongait(:,1),10*log10(mean(psd_struct.P_nongait,2)),'r','
 % rectangle('Position',[12,-100,18,100],'FaceColor',[1, 1, 0, 0.1],'EdgeColor','none'); % beta
 % rectangle('Position',[30,-100,40,100],'FaceColor',[0, 1, 1, 0.1],'EdgeColor','none'); % low gamma
 % rectangle('Position',[70,-100,30,100],'FaceColor',[1, 0, 1, 0.1],'EdgeColor','none'); % high gamma
-y_limits = [-70 -30];
+y_limits = [-85 -30];
 plot([1.5 1.5],y_limits,LineStyle="--",Color=[0 0 0])
 plot([4 4],y_limits,LineStyle="--",Color=[0 0 0])
 plot([8 8],y_limits,LineStyle="--",Color=[0 0 0])
@@ -56,7 +56,7 @@ plot([30 30],y_limits,LineStyle="--",Color=[0 0 0])
 %     x = i;
 %     plot([x x],y_limits,LineStyle="--",Color=[0 0 0])
 % end
-% legend([g,ng],'Gait','Non-Gait')
+legend([g,ng],'Gait','Non-Gait')
 xlim([0 100])
 ylim(y_limits)
 hold off 

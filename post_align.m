@@ -65,19 +65,36 @@ if isfield(aligned_data,"right_LFP_table") == 1
     % plot the aligned and cropped signals on unified time stream
     if fig == 1 || nargin == 1
         figure() 
-        ax(1) = subplot(411);
+        ax(1) = subplot(311);
         plot(l_rcs_accel_sig.NewTime,l_rcs_accel_sig.XSamples)
         title('L RC+S Accelerometry')
-        ax(2) = subplot(412);
+        ax(2) = subplot(312);
         plot(l_rover_sig.NewTime, l_rover_sig.LinearAccelX)
-        title('L Rover Accelerometry')
-        ax(3) = subplot(413);
+        hold on
+        plot(r_rover_sig.NewTime, r_rover_sig.LinearAccelX)
+        title('Superimposed L and R Rover')
+        ax(3) = subplot(313);
         plot(r_rcs_accel_sig.NewTime, r_rcs_accel_sig.XSamples)
         title('R RC+S Accelerometry')
-        ax(4) = subplot(414);
-        plot(r_rover_sig.NewTime, r_rover_sig.LinearAccelX)
-        title('R Rover Accelerometry')
-        linkaxes(ax,'x');
+%         ax(4) = subplot(414);
+%         if size(l_rover_sig.LinearAccelX,1) < size(r_rover_sig.LinearAccelX,1)
+%             [c,lags] = xcorr(l_rcs_accel_sig.XSamples,l_rover_sig.LinearAccelX + r_rover_sig.LinearAccelX(1:size(l_rover_sig.LinearAccelX,1),1),200);
+%             [~, ideal_lag_idx] = max(abs(c));
+%             ideal_lag = lags(ideal_lag_idx);
+%             hold on
+%             plot(l_rover_sig.NewTime, l_rover_sig.LinearAccelX + r_rover_sig.LinearAccelX(1:size(l_rover_sig.LinearAccelX,1),1))
+%             plot(l_rover_sig.NewTime + ideal_lag, l_rover_sig.LinearAccelX + r_rover_sig.LinearAccelX(1:size(l_rover_sig.LinearAccelX,1),1))
+%             title('Lagged Sum Signal')
+%         else
+%             [c,lags] = xcorr(l_rcs_accel_sig.XSamples,l_rover_sig.LinearAccelX(1:size(r_rover_sig.LinearAccelX,1),1) + r_rover_sig.LinearAccelX,200);
+%             [~, ideal_lag_idx] = max(abs(c));
+%             ideal_lag = lags(ideal_lag_idx);
+%             hold on
+%             plot(l_rover_sig.NewTime, l_rover_sig.LinearAccelX + r_rover_sig.LinearAccelX(1:size(l_rover_sig.LinearAccelX,1),1))        
+%             plot(l_rover_sig.NewTime + ideal_lag, l_rover_sig.LinearAccelX + r_rover_sig.LinearAccelX(1:size(l_rover_sig.LinearAccelX,1),1))
+%             title('Lagged Sum Signal')
+%         end
+%         linkaxes(ax,'x');
     end
 
     post_align_struct.right_accel_taxis = ((post_align_struct.r_rcs_accel.DerivedTime - post_align_struct.r_rcs_accel.DerivedTime(1))/1000);
@@ -112,6 +129,8 @@ else
         title('L RC+S Accelerometry')
         ax(2) = subplot(312);
         plot(l_rover_sig.NewTime, l_rover_sig.LinearAccelX)
+        hold on
+        plot(r_rover_sig.NewTime, r_rover_sig.LinearAccelX)
         title('L Rover Accelerometry')
         ax(4) = subplot(313);
         plot(r_rover_sig.NewTime, r_rover_sig.LinearAccelX)

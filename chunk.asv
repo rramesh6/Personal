@@ -465,17 +465,17 @@ end
 % This portion below is a stricter data loss restriction, but probably can
 % be commented out if wanting to go looser
 
-for i = 2:size(overall_gait_periods,1)-1
-    if overall_gait_periods.Gait(i) == 0 || overall_gait_periods.Gait(i) == 1
-        if overall_gait_periods.Gait(i-1) == 2
-            if overall_gait_periods.Gait(i+1) == 2 
-                overall_gait_periods.Gait(i) = 2;
-            end
-        end
-    end
-end
-overall_gait_periods.Gait(1:2) = 2;
-overall_gait_periods.Gait(end-2:end) = 2;
+% for i = 2:size(overall_gait_periods,1)-1
+%     if overall_gait_periods.Gait(i) == 0 || overall_gait_periods.Gait(i) == 1
+%         if overall_gait_periods.Gait(i-1) == 2
+%             if overall_gait_periods.Gait(i+1) == 2 
+%                 overall_gait_periods.Gait(i) = 2;
+%             end
+%         end
+%     end
+% end
+% overall_gait_periods.Gait(1:2) = 2;
+% overall_gait_periods.Gait(end-2:end) = 2;
 
 if fig == 1
     figure()
@@ -515,22 +515,22 @@ if fig == 1
     end
 end
 
-% figure()
-% plot(post_align_struct.l_rover.NewTime,post_align_struct.l_rover.LinearAccelX)
-% title('Left Rover Accelerometry')
-% hold on
-% for i = 1:size(overall_gait_periods)
-%     x = overall_gait_periods.NewTime_start(i);
-%     y = 0 - max(post_align_struct.l_rover.LinearAccelX);
-%     width = overall_gait_periods.NewTime_end(i)-overall_gait_periods.NewTime_start(i);
-%     height = 2.1*max(post_align_struct.l_rover.LinearAccelX);
-%     if overall_gait_periods.Gait(i) == 1
-%             rectangle('Position',[x,y,width,height],'FaceColor',[0, 1, 0, 0.1],'EdgeColor','none');
-%     elseif overall_gait_periods.Gait(i) == 0
-%             rectangle('Position',[x,y,width,height],'FaceColor',[1, 0, 0, 0.1],'EdgeColor','none');
-%     end
-% xlabel('Time (ms)')
-% hold off
+figure()
+plot(post_align_struct.l_rover.NewTime,post_align_struct.l_rover.LinearAccelX)
+title('Left Rover Accelerometry')
+hold on
+for i = 1:size(overall_gait_periods)
+    x = overall_gait_periods.NewTime_start(i);
+    y = 0 - max(post_align_struct.l_rover.LinearAccelX);
+    width = overall_gait_periods.NewTime_end(i)-overall_gait_periods.NewTime_start(i);
+    height = 2.1*max(post_align_struct.l_rover.LinearAccelX);
+    if overall_gait_periods.Gait(i) == 1
+            rectangle('Position',[x,y,width,height],'FaceColor',[0, 1, 0, 0.1],'EdgeColor','none');
+    elseif overall_gait_periods.Gait(i) == 0
+            rectangle('Position',[x,y,width,height],'FaceColor',[1, 0, 0, 0.1],'EdgeColor','none');
+    end
+xlabel('Time (ms)')
+hold off
 
 post_align_struct.overall_gait_periods = overall_gait_periods;
 

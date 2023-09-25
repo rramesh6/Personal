@@ -4,13 +4,16 @@ addpath(scripts_path);
 clear scripts_path;
 
 % set path to location of aligned data 
-path = '/Volumes/dwang3_shared/Patient Data/RC+S Data/gait_RCS_05/Rover/Data/Aligned Data';
+%path = '/Volumes/dwang3_shared/Patient Data/RC+S Data/gait_RCS_05/v5_2023-06-06_Parameter-Testing_1/Data/Aligned Data/Aligned_Rover/At-Home Biomarker Validation';
+path = '/Volumes/dwang3_shared/Patient Data/RC+S Data/gait_RCS_02/Rover/Data/Aligned Data';
 files = dir(fullfile(path,'*.mat'));
 names = {files.name};
 addpath(path);
 
 % read rover excel files for specified subject 
-rover_stack = rover_report('RCS_05');
+rover_stack = rover_report('RCS_02');
+
+%%
 
 % create some empty matrices for storing the PSD information 
 P_gait_0 = [];
@@ -50,8 +53,10 @@ chunks_nongait_3 = [];
 
 
 % Use anything in i = 14:24 for RCS-02 pre-stim data, everything else = post 
+% For RCS_04, use [1,2,4,6,9,10]
+% For RCS_05 poststim, use 16:size(names,2)
 
-for i = 2
+for i = 1:13
     file = names{i};
     update = ['Processing alignment for ' num2str(file)];
     disp(update)
@@ -64,7 +69,20 @@ for i = 2
     post_align_struct = chunk(post_align_struct,10,1,1);
     update = ['Filtering ' num2str(file)];
     disp(update)
-    post_align_struct = filter_lfp(post_align_struct,1,120,1);
+    post_align_struct = filter_lfp(post_align_struct,1,120,4,150.6,1);
+%     if i == 2 
+%         post_align_struct = filter_lfp(post_align_struct,1,120,1,120,4);
+%     elseif i == 3 
+%         post_align_struct = filter_lfp(post_align_struct,1,120,1,120,3);
+%         post_align_struct = filter_lfp(post_align_struct,1,120,2,120,1);
+%         post_align_struct = filter_lfp(post_align_struct,1,120,3,120,1);
+%     elseif i == 1 | i == 4 
+%         post_align_struct = filter_lfp(post_align_struct,1,120,2,130,1);
+%     elseif i == 7
+%         post_align_struct = filter_lfp(post_align_struct,1,120,2,130,0.5);
+%     else
+%         post_align_struct = filter_lfp(post_align_struct,1,120,0);
+%     end
     update = ['Analyzing ' num2str(file)];
     disp(update)
     
@@ -157,80 +175,173 @@ RCS02_prestim_key3.P_nongait_3 = P_nongait_3;
 RCS02_prestim_key3.F_nongait_3 = F_nongait_3;
 RCS02_prestim_key3.chunks_nongait_3 = chunks_nongait_3;
 
-%% Logistic Regression with Frequency Bands
+%% FOR RCS05 
 
-accuracies = [];
+RCS05_key0_poststim = throw_session(RCS05_key0,'020223');
+RCS05_key0_poststim = throw_session(RCS05_key0_poststim,'020523');
+RCS05_key0_poststim = throw_session(RCS05_key0_poststim,'020923');
+RCS05_key0_poststim = throw_session(RCS05_key0_poststim,'021223');
+RCS05_key0_poststim = throw_session(RCS05_key0_poststim,'021523');
+RCS05_key0_poststim = throw_session(RCS05_key0_poststim,'021923');
+RCS05_key0_poststim = throw_session(RCS05_key0_poststim,'030123');
 
-for i = 1:10 
-    cv = cvpartition(size(feature_table_1,1),'HoldOut',0.3);
-    idx = cv.test;
-    dataTrain = feature_table_1(~idx,:);
-    dataTest  = feature_table_1(idx,:);
+RCS05_key1_poststim = throw_session(RCS05_key1,'020223');
+RCS05_key1_poststim = throw_session(RCS05_key1_poststim,'020523');
+RCS05_key1_poststim = throw_session(RCS05_key1_poststim,'020923');
+RCS05_key1_poststim = throw_session(RCS05_key1_poststim,'021223');
+RCS05_key1_poststim = throw_session(RCS05_key1_poststim,'021523');
+RCS05_key1_poststim = throw_session(RCS05_key1_poststim,'021923');
+RCS05_key1_poststim = throw_session(RCS05_key1_poststim,'030123');
 
-    model = fitglm(dataTrain(:,1:6),dataTrain(:,7),"Distribution","binomial");
-    y_hat = round(predict(model, dataTest(:,1:6)));
-    accuracy = 100*sum(y_hat == dataTest(:,7))/numel(dataTest(:,7));
-    accuracies = [accuracies accuracy];
-end
+RCS05_key2_poststim = throw_session(RCS05_key2,'020223');
+RCS05_key2_poststim = throw_session(RCS05_key2_poststim,'020523');
+RCS05_key2_poststim = throw_session(RCS05_key2_poststim,'020923');
+RCS05_key2_poststim = throw_session(RCS05_key2_poststim,'021223');
+RCS05_key2_poststim = throw_session(RCS05_key2_poststim,'021523');
+RCS05_key2_poststim = throw_session(RCS05_key2_poststim,'021923');
+RCS05_key2_poststim = throw_session(RCS05_key2_poststim,'030123');
 
-average_accuracy = mean(accuracies);
+RCS05_key3_poststim = throw_session(RCS05_key3,'020223');
+RCS05_key3_poststim = throw_session(RCS05_key3_poststim,'020523');
+RCS05_key3_poststim = throw_session(RCS05_key3_poststim,'020923');
+RCS05_key3_poststim = throw_session(RCS05_key3_poststim,'021223');
+RCS05_key3_poststim = throw_session(RCS05_key3_poststim,'021523');
+RCS05_key3_poststim = throw_session(RCS05_key3_poststim,'021923');
+RCS05_key3_poststim = throw_session(RCS05_key3_poststim,'030123');
 
-x_line = average_accuracy;  
-y_line = [-1 1];  
-line(x_line, y_line, 'LineStyle', '--', 'Color', 'r');
+%%
 
+RCS05_prefilter_key0 = struct();
+RCS05_prefilter_key0.P_gait_0 = P_gait_0;
+RCS05_prefilter_key0.F_gait_0 = F_gait_0;
+RCS05_prefilter_key0.chunks_gait_0 = chunks_gait_0;
+RCS05_prefilter_key0.P_nongait_0 = P_nongait_0;
+RCS05_prefilter_key0.F_nongait_0 = F_nongait_0;
+RCS05_prefilter_key0.chunks_nongait_0 = chunks_nongait_0;
 
-model = fitglm(feature_table(:,1:6),feature_table(:,7),"Distribution","binomial");
+RCS05_prefilter_key1 = struct();
+RCS05_prefilter_key1.P_gait_1 = P_gait_1;
+RCS05_prefilter_key1.F_gait_1 = F_gait_1;
+RCS05_prefilter_key1.chunks_gait_1 = chunks_gait_1;
+RCS05_prefilter_key1.P_nongait_1 = P_nongait_1;
+RCS05_prefilter_key1.F_nongait_1 = F_nongait_1;
+RCS05_prefilter_key1.chunks_nongait_1 = chunks_nongait_1;
 
-model = fitglm(Y,feature_table(:,2502),"Distribution","binomial");
+RCS05_prefilter_key2 = struct();
+RCS05_prefilter_key2.P_gait_2 = P_gait_2;
+RCS05_prefilter_key2.F_gait_2 = F_gait_2;
+RCS05_prefilter_key2.chunks_gait_2 = chunks_gait_2;
+RCS05_prefilter_key2.P_nongait_2 = P_nongait_2;
+RCS05_prefilter_key2.F_nongait_2 = F_nongait_2;
+RCS05_prefilter_key2.chunks_nongait_2 = chunks_nongait_2;
 
-[idx,C] = kmeans(band_data(:,1:6),2);
-figure;
-plot(band_data(idx==1,1),band_data(idx==1,3),'r.','MarkerSize',12)
-hold on
-plot(band_data(idx==2,1),band_data(idx==2,3),'b.','MarkerSize',12)
-plot(C(:,1),C(:,2),'kx',...
-     'MarkerSize',15,'LineWidth',3) 
-legend('Cluster 1','Cluster 2','Centroids',...
-       'Location','NW')
-title 'Cluster Assignments and Centroids'
-hold off
+RCS05_prefilter_key3 = struct();
+RCS05_prefilter_key3.P_gait_3 = P_gait_3;
+RCS05_prefilter_key3.F_gait_3 = F_gait_3;
+RCS05_prefilter_key3.chunks_gait_3 = chunks_gait_3;
+RCS05_prefilter_key3.P_nongait_3 = P_nongait_3;
+RCS05_prefilter_key3.F_nongait_3 = F_nongait_3;
+RCS05_prefilter_key3.chunks_nongait_3 = chunks_nongait_3;
 
-%% K-MEANS
+%%
+RCS05_postfilter_key0 = struct();
+RCS05_postfilter_key0.P_gait_0 = P_gait_0;
+RCS05_postfilter_key0.F_gait_0 = F_gait_0;
+RCS05_postfilter_key0.chunks_gait_0 = chunks_gait_0;
+RCS05_postfilter_key0.P_nongait_0 = P_nongait_0;
+RCS05_postfilter_key0.F_nongait_0 = F_nongait_0;
+RCS05_postfilter_key0.chunks_nongait_0 = chunks_nongait_0;
 
-[cluster_assignments, centroids] = kmeans(feature_table(:,1:6), 2);
-figure()
-subplot(121)
-scatter(feature_table(:, 1), feature_table(:, 2), [], feature_table(:,7));
-subplot(122)
-scatter(feature_table(:, 1), feature_table(:, 2), [], cluster_assignments);
+RCS05_postfilter_key1 = struct();
+RCS05_postfilter_key1.P_gait_1 = P_gait_1;
+RCS05_postfilter_key1.F_gait_1 = F_gait_1;
+RCS05_postfilter_key1.chunks_gait_1 = chunks_gait_1;
+RCS05_postfilter_key1.P_nongait_1 = P_nongait_1;
+RCS05_postfilter_key1.F_nongait_1 = F_nongait_1;
+RCS05_postfilter_key1.chunks_nongait_1 = chunks_nongait_1;
 
-%% t-SNE
+RCS05_postfilter_key2 = struct();
+RCS05_postfilter_key2.P_gait_2 = P_gait_2;
+RCS05_postfilter_key2.F_gait_2 = F_gait_2;
+RCS05_postfilter_key2.chunks_gait_2 = chunks_gait_2;
+RCS05_postfilter_key2.P_nongait_2 = P_nongait_2;
+RCS05_postfilter_key2.F_nongait_2 = F_nongait_2;
+RCS05_postfilter_key2.chunks_nongait_2 = chunks_nongait_2;
 
-Y = tsne(feature_table(:,1:6));
-scatter(Y(:,1),Y(:,2),[],feature_table(:,7));
+RCS05_postfilter_key3 = struct();
+RCS05_postfilter_key3.P_gait_3 = P_gait_3;
+RCS05_postfilter_key3.F_gait_3 = F_gait_3;
+RCS05_postfilter_key3.chunks_gait_3 = chunks_gait_3;
+RCS05_postfilter_key3.P_nongait_3 = P_nongait_3;
+RCS05_postfilter_key3.F_nongait_3 = F_nongait_3;
+RCS05_postfilter_key3.chunks_nongait_3 = chunks_nongait_3;
 
+%%
 
-feature_table = [power_percent_1.P_gait_1' ones(size(power_percent_1.P_gait_1,2),1); power_percent_1.P_nongait_1' zeros(size(power_percent_1.P_nongait_1,2),1)];
-Y = tsne(power_percent_(:,1:6));
-scatter(Y(:,1),Y(:,2));
+RCS05_ptest1_key0 = struct();
+RCS05_ptest1_key0.P_gait_0 = P_gait_0;
+RCS05_ptest1_key0.F_gait_0 = F_gait_0;
+RCS05_ptest1_key0.chunks_gait_0 = chunks_gait_0;
+RCS05_ptest1_key0.P_nongait_0 = P_nongait_0;
+RCS05_ptest1_key0.F_nongait_0 = F_nongait_0;
+RCS05_ptest1_key0.chunks_nongait_0 = chunks_nongait_0;
 
-%% OVERALL LOGISTIC REGRESSION
+RCS05_ptest1_key1 = struct();
+RCS05_ptest1_key1.P_gait_1 = P_gait_1;
+RCS05_ptest1_key1.F_gait_1 = F_gait_1;
+RCS05_ptest1_key1.chunks_gait_1 = chunks_gait_1;
+RCS05_ptest1_key1.P_nongait_1 = P_nongait_1;
+RCS05_ptest1_key1.F_nongait_1 = F_nongait_1;
+RCS05_ptest1_key1.chunks_nongait_1 = chunks_nongait_1;
 
-accuracies = [];
+RCS05_ptest1_key2 = struct();
+RCS05_ptest1_key2.P_gait_2 = P_gait_2;
+RCS05_ptest1_key2.F_gait_2 = F_gait_2;
+RCS05_ptest1_key2.chunks_gait_2 = chunks_gait_2;
+RCS05_ptest1_key2.P_nongait_2 = P_nongait_2;
+RCS05_ptest1_key2.F_nongait_2 = F_nongait_2;
+RCS05_ptest1_key2.chunks_nongait_2 = chunks_nongait_2;
 
-for i = 1:100 
-    cv = cvpartition(size(overall_feature_table,1),'HoldOut',0.3);
-    idx = cv.test;
-    dataTrain = overall_feature_table(~idx,:);
-    dataTest  = overall_feature_table(idx,:);
+RCS05_ptest1_key3 = struct();
+RCS05_ptest1_key3.P_gait_3 = P_gait_3;
+RCS05_ptest1_key3.F_gait_3 = F_gait_3;
+RCS05_ptest1_key3.chunks_gait_3 = chunks_gait_3;
+RCS05_ptest1_key3.P_nongait_3 = P_nongait_3;
+RCS05_ptest1_key3.F_nongait_3 = F_nongait_3;
+RCS05_ptest1_key3.chunks_nongait_3 = chunks_nongait_3;
 
-    model = fitglm(dataTrain(:,1:end-1),dataTrain(:,end),"Distribution","binomial");
-    y_hat = round(predict(model, dataTest(:,1:end-1)));
-    accuracy = 100*sum(y_hat == dataTest(:,end))/numel(dataTest(:,end));
-    accuracies = [accuracies accuracy];
-end
+%%
 
-average_accuracy = mean(accuracies);
+RCS05_poststim_noroverloss_key0 = struct();
+RCS05_poststim_noroverloss_key0.P_gait_0 = P_gait_0;
+RCS05_poststim_noroverloss_key0.F_gait_0 = F_gait_0;
+RCS05_poststim_noroverloss_key0.chunks_gait_0 = chunks_gait_0;
+RCS05_poststim_noroverloss_key0.P_nongait_0 = P_nongait_0;
+RCS05_poststim_noroverloss_key0.F_nongait_0 = F_nongait_0;
+RCS05_poststim_noroverloss_key0.chunks_nongait_0 = chunks_nongait_0;
+
+RCS05_poststim_noroverloss_key1 = struct();
+RCS05_poststim_noroverloss_key1.P_gait_1 = P_gait_1;
+RCS05_poststim_noroverloss_key1.F_gait_1 = F_gait_1;
+RCS05_poststim_noroverloss_key1.chunks_gait_1 = chunks_gait_1;
+RCS05_poststim_noroverloss_key1.P_nongait_1 = P_nongait_1;
+RCS05_poststim_noroverloss_key1.F_nongait_1 = F_nongait_1;
+RCS05_poststim_noroverloss_key1.chunks_nongait_1 = chunks_nongait_1;
+
+RCS05_poststim_noroverloss_key2 = struct();
+RCS05_poststim_noroverloss_key2.P_gait_2 = P_gait_2;
+RCS05_poststim_noroverloss_key2.F_gait_2 = F_gait_2;
+RCS05_poststim_noroverloss_key2.chunks_gait_2 = chunks_gait_2;
+RCS05_poststim_noroverloss_key2.P_nongait_2 = P_nongait_2;
+RCS05_poststim_noroverloss_key2.F_nongait_2 = F_nongait_2;
+RCS05_poststim_noroverloss_key2.chunks_nongait_2 = chunks_nongait_2;
+
+RCS05_poststim_noroverloss_key3 = struct();
+RCS05_poststim_noroverloss_key3.P_gait_3 = P_gait_3;
+RCS05_poststim_noroverloss_key3.F_gait_3 = F_gait_3;
+RCS05_poststim_noroverloss_key3.chunks_gait_3 = chunks_gait_3;
+RCS05_poststim_noroverloss_key3.P_nongait_3 = P_nongait_3;
+RCS05_poststim_noroverloss_key3.F_nongait_3 = F_nongait_3;
+RCS05_poststim_noroverloss_key3.chunks_nongait_3 = chunks_nongait_3;
 
 

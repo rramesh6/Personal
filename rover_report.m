@@ -13,6 +13,10 @@ if contains(subject,'RCS_05')
     path = '/Volumes/dwang3_shared/Patient Data/RC+S Data/gait_RCS_05/Rover/Rover Excel Reports';
 end
 
+if contains(subject,'RCS_04')
+    path = '/Volumes/dwang3_shared/Patient Data/RC+S Data/gait_RCS_04/Rover/Rover Excel Reports';
+end
+
 files = dir(fullfile(path,'*.xlsx'));
 names = {files.name};
 addpath(path)
