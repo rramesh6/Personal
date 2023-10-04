@@ -16,9 +16,9 @@ import matplotlib.pyplot as plt
 from sklearn.preprocessing import StandardScaler
 
 # data = pd.read_csv('/Users/Rithvik/Documents/UCSF/Research/wang_lab/Data/RCS_02/PSD Analysis/revised_poststim/Feature Tables/RCS02_poststim_key1_key2_key3_feature.csv')
-data_1 = pd.read_csv('/Volumes/dwang3_shared/Patient Data/RC+S Data/gait_RCS_05/Rover/Data/Analysis Data/Revised Feature Tables/key0_raw_noroverloss.csv')
-data_2 = pd.read_csv('/Volumes/dwang3_shared/Patient Data/RC+S Data/gait_RCS_05/Rover/Data/Analysis Data/Revised Feature Tables/key2_raw_noroverloss.csv')
-data_3 = pd.read_csv('/Volumes/dwang3_shared/Patient Data/RC+S Data/gait_RCS_05/Rover/Data/Analysis Data/Revised Feature Tables/key0_raw_noroverloss.csv')
+data_1 = pd.read_csv('/Volumes/dwang3_shared/Patient Data/RC+S Data/RCS09/v4_2023-08-31_Parameter-Testing-Clinic_002/Data/Analysis Data/Rithvik/Feature Tables/l_key0_rcs.csv')
+data_2 = pd.read_csv('/Volumes/dwang3_shared/Patient Data/RC+S Data/RCS09/v4_2023-08-31_Parameter-Testing-Clinic_002/Data/Analysis Data/Rithvik/Feature Tables/l_key2_rcs.csv')
+data_3 = pd.read_csv('/Volumes/dwang3_shared/Patient Data/RC+S Data/RCS09/v4_2023-08-31_Parameter-Testing-Clinic_002/Data/Analysis Data/Rithvik/Feature Tables/l_key3_rcs.csv')
 
 x_1 = data_1.iloc[:, :-1]
 x_2 = data_2.iloc[:, :-1]
@@ -82,7 +82,6 @@ plt.title('Receiver Operating Characteristic (ROC) Curve')
 plt.legend(loc='lower right')
 plt.show()
 
-
 num_keys = 3
 bars_per_group = 6
 feature_weights = model.coef_
@@ -105,9 +104,9 @@ plt.show()
 
 ## 
 
-test_data_1 = pd.read_csv('/Volumes/dwang3_shared/Patient Data/RC+S Data/gait_RCS_05/v5_2023-06-06_Parameter-Testing_1/Data/Aligned Data/Aligned_Rover/At-Home Biomarker Validation/Feature Tables/key0_raw_rcs_50.csv')
-test_data_2 = pd.read_csv('/Volumes/dwang3_shared/Patient Data/RC+S Data/gait_RCS_05/v5_2023-06-06_Parameter-Testing_1/Data/Aligned Data/Aligned_Rover/At-Home Biomarker Validation/Feature Tables/key2_raw_rcs_50.csv')
-test_data_3 = pd.read_csv('/Volumes/dwang3_shared/Patient Data/RC+S Data/gait_RCS_05/v5_2023-06-06_Parameter-Testing_1/Data/Aligned Data/Aligned_Rover/At-Home Biomarker Validation/Feature Tables/key3_raw_rcs_50.csv')
+test_data_1 = pd.read_csv('/Volumes/dwang3_shared/Patient Data/RC+S Data/gait_RCS_05/Rover/Data/Analysis Data/Revised Feature Tables/date_partitioning/key0_test.csv')
+test_data_2 = pd.read_csv('/Volumes/dwang3_shared/Patient Data/RC+S Data/gait_RCS_05/Rover/Data/Analysis Data/Revised Feature Tables/date_partitioning/key2_test.csv')
+test_data_3 = pd.read_csv('/Volumes/dwang3_shared/Patient Data/RC+S Data/gait_RCS_05/Rover/Data/Analysis Data/Revised Feature Tables/date_partitioning/key3_test.csv')
 
 test_x_1 = test_data_1.iloc[:, :-1]
 test_x_2 = test_data_2.iloc[:, :-1]

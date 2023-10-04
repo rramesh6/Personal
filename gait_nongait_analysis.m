@@ -66,7 +66,7 @@ for i = 1:13
     post_align_struct = label_rover(post_align_struct,rover_stack);
     update = ['Chunking ' num2str(file)];
     disp(update)
-    post_align_struct = chunk(post_align_struct,10,1,1);
+    post_align_struct = chunk(post_align_struct,10,1,0);
     update = ['Filtering ' num2str(file)];
     disp(update)
     post_align_struct = filter_lfp(post_align_struct,1,120,4,150.6,1);

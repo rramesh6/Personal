@@ -143,7 +143,7 @@ if leg == 0
             [~,start_idx] = min(abs(post_align_struct.l_rcs_lfp.NewTime - post_align_struct.overall_gait_periods.NewTime_start(i)));
             [~,end_idx] = min(abs(post_align_struct.l_rcs_lfp.NewTime - post_align_struct.overall_gait_periods.NewTime_end(i)));
             x = post_align_struct.l_rcs_lfp.key2(start_idx:end_idx,:);
-            if size(x,1) > Fs*period;
+            if size(x,1) > 0.5*Fs*period;
                 [Pxx,F] = pwelch(x,[],[],Fs*period,Fs);
                 chunk_label = string([post_align_struct.filename '_' num2str(i)]);
                 if post_align_struct.overall_gait_periods.Gait(i) == 1
@@ -203,7 +203,7 @@ if leg == 0
             [~,start_idx] = min(abs(post_align_struct.l_rcs_lfp.NewTime - post_align_struct.overall_gait_periods.NewTime_start(i)));
             [~,end_idx] = min(abs(post_align_struct.l_rcs_lfp.NewTime - post_align_struct.overall_gait_periods.NewTime_end(i)));
             x = post_align_struct.l_rcs_lfp.key3(start_idx:end_idx,:);
-            if size(x,1) > Fs*period;
+            if size(x,1) > 0.5*Fs*period;
                 [Pxx,F] = pwelch(x,[],[],Fs*period,Fs);
                 chunk_label = string([post_align_struct.filename '_' num2str(i)]);
                 if post_align_struct.overall_gait_periods.Gait(i) == 1
@@ -252,7 +252,7 @@ if leg == 1
 
     if key == 0
     
-        new_num_periods = size(post_align_struct.overalr_gait_periods,1);
+        new_num_periods = size(post_align_struct.overall_gait_periods,1);
     
         Fs = 500;
         Pxx_key0_gait = [];
@@ -262,17 +262,17 @@ if leg == 1
         chunks_key0_nongait = [];
         F_key0_nongait = [];
         for i = 1:new_num_periods
-            [~,start_idx] = min(abs(post_align_struct.r_rcs_lfp.NewTime - post_align_struct.overalr_gait_periods.NewTime_start(i)));
-            [~,end_idx] = min(abs(post_align_struct.r_rcs_lfp.NewTime - post_align_struct.overalr_gait_periods.NewTime_end(i)));
+            [~,start_idx] = min(abs(post_align_struct.r_rcs_lfp.NewTime - post_align_struct.overall_gait_periods.NewTime_start(i)));
+            [~,end_idx] = min(abs(post_align_struct.r_rcs_lfp.NewTime - post_align_struct.overall_gait_periods.NewTime_end(i)));
             x = post_align_struct.r_rcs_lfp.key0(start_idx:end_idx,:);
             if size(x,1) > 0.5*Fs*period;
                 [Pxx,F] = pwelch(x,[],[],Fs*period,Fs);
                 chunk_label = string([post_align_struct.filename '_' num2str(i)]);
-                if post_align_struct.overalr_gait_periods.Gait(i) == 1
+                if post_align_struct.overall_gait_periods.Gait(i) == 1
                     Pxx_key0_gait = [Pxx_key0_gait Pxx];
                     chunks_key0_gait = [chunks_key0_gait chunk_label];
                     F_key0_gait = [F_key0_gait F];
-                elseif post_align_struct.overalr_gait_periods.Gait(i) == 0
+                elseif post_align_struct.overall_gait_periods.Gait(i) == 0
                     Pxx_key0_nongait = [Pxx_key0_nongait Pxx];
                     chunks_key0_nongait = [chunks_key0_nongait chunk_label];
                     F_key0_nongait = [F_key0_nongait F];
@@ -314,7 +314,7 @@ if leg == 1
     
     if key == 1
     
-        new_num_periods = size(post_align_struct.overalr_gait_periods,1);
+        new_num_periods = size(post_align_struct.overall_gait_periods,1);
     
         Fs = 500;
         Pxx_key1_gait = [];
@@ -325,17 +325,17 @@ if leg == 1
         F_key1_nongait = [];
     
         for i = 1:new_num_periods
-            [~,start_idx] = min(abs(post_align_struct.r_rcs_lfp.NewTime - post_align_struct.overalr_gait_periods.NewTime_start(i)));
-            [~,end_idx] = min(abs(post_align_struct.r_rcs_lfp.NewTime - post_align_struct.overalr_gait_periods.NewTime_end(i)));
+            [~,start_idx] = min(abs(post_align_struct.r_rcs_lfp.NewTime - post_align_struct.overall_gait_periods.NewTime_start(i)));
+            [~,end_idx] = min(abs(post_align_struct.r_rcs_lfp.NewTime - post_align_struct.overall_gait_periods.NewTime_end(i)));
             x = post_align_struct.r_rcs_lfp.key1(start_idx:end_idx,:);
             if size(x,1) > 0.5*Fs*period;
                 [Pxx,F] = pwelch(x,[],[],Fs*period,Fs);
                 chunk_label = string([post_align_struct.filename '_' num2str(i)]);
-                if post_align_struct.overalr_gait_periods.Gait(i) == 1
+                if post_align_struct.overall_gait_periods.Gait(i) == 1
                     Pxx_key1_gait = [Pxx_key1_gait Pxx];
                     chunks_key1_gait = [chunks_key1_gait chunk_label];
                     F_key1_gait = [F_key1_gait F];
-                elseif post_align_struct.overalr_gait_periods.Gait(i) == 0
+                elseif post_align_struct.overall_gait_periods.Gait(i) == 0
                     Pxx_key1_nongait = [Pxx_key1_nongait Pxx];
                     chunks_key1_nongait = [chunks_key1_nongait chunk_label];
                     F_key1_nongait = [F_key1_nongait F];
@@ -374,7 +374,7 @@ if leg == 1
     
     if key == 2
     
-        new_num_periods = size(post_align_struct.overalr_gait_periods,1);
+        new_num_periods = size(post_align_struct.overall_gait_periods,1);
     
         Fs = 500;
         Pxx_key2_gait = [];
@@ -385,17 +385,17 @@ if leg == 1
         F_key2_nongait = [];
     
         for i = 1:new_num_periods
-            [~,start_idx] = min(abs(post_align_struct.r_rcs_lfp.NewTime - post_align_struct.overalr_gait_periods.NewTime_start(i)));
-            [~,end_idx] = min(abs(post_align_struct.r_rcs_lfp.NewTime - post_align_struct.overalr_gait_periods.NewTime_end(i)));
+            [~,start_idx] = min(abs(post_align_struct.r_rcs_lfp.NewTime - post_align_struct.overall_gait_periods.NewTime_start(i)));
+            [~,end_idx] = min(abs(post_align_struct.r_rcs_lfp.NewTime - post_align_struct.overall_gait_periods.NewTime_end(i)));
             x = post_align_struct.r_rcs_lfp.key2(start_idx:end_idx,:);
-            if size(x,1) > Fs*period;
+            if size(x,1) > 0.5*Fs*period;
                 [Pxx,F] = pwelch(x,[],[],Fs*period,Fs);
                 chunk_label = string([post_align_struct.filename '_' num2str(i)]);
-                if post_align_struct.overalr_gait_periods.Gait(i) == 1
+                if post_align_struct.overall_gait_periods.Gait(i) == 1
                     Pxx_key2_gait = [Pxx_key2_gait Pxx];
                     chunks_key2_gait = [chunks_key2_gait chunk_label];
                     F_key2_gait = [F_key2_gait F];
-                elseif post_align_struct.overalr_gait_periods.Gait(i) == 0
+                elseif post_align_struct.overall_gait_periods.Gait(i) == 0
                     Pxx_key2_nongait = [Pxx_key2_nongait Pxx];
                     chunks_key2_nongait = [chunks_key2_nongait chunk_label];
                     F_key2_nongait = [F_key2_nongait F];
@@ -434,7 +434,7 @@ if leg == 1
     
     if key == 3
     
-        new_num_periods = size(post_align_struct.overalr_gait_periods,1);
+        new_num_periods = size(post_align_struct.overall_gait_periods,1);
     
         Fs = 500;
         Pxx_key3_gait = [];
@@ -445,17 +445,17 @@ if leg == 1
         F_key3_nongait = [];
     
         for i = 1:new_num_periods
-            [~,start_idx] = min(abs(post_align_struct.r_rcs_lfp.NewTime - post_align_struct.overalr_gait_periods.NewTime_start(i)));
-            [~,end_idx] = min(abs(post_align_struct.r_rcs_lfp.NewTime - post_align_struct.overalr_gait_periods.NewTime_end(i)));
+            [~,start_idx] = min(abs(post_align_struct.r_rcs_lfp.NewTime - post_align_struct.overall_gait_periods.NewTime_start(i)));
+            [~,end_idx] = min(abs(post_align_struct.r_rcs_lfp.NewTime - post_align_struct.overall_gait_periods.NewTime_end(i)));
             x = post_align_struct.r_rcs_lfp.key3(start_idx:end_idx,:);
-            if size(x,1) > Fs*period;
+            if size(x,1) > 0.5*Fs*period;
                 [Pxx,F] = pwelch(x,[],[],Fs*period,Fs);
                 chunk_label = string([post_align_struct.filename '_' num2str(i)]);
-                if post_align_struct.overalr_gait_periods.Gait(i) == 1
+                if post_align_struct.overall_gait_periods.Gait(i) == 1
                     Pxx_key3_gait = [Pxx_key3_gait Pxx];
                     chunks_key3_gait = [chunks_key3_gait chunk_label];
                     F_key3_gait = [F_key3_gait F];
-                elseif post_align_struct.overalr_gait_periods.Gait(i) == 0
+                elseif post_align_struct.overall_gait_periods.Gait(i) == 0
                     Pxx_key3_nongait = [Pxx_key3_nongait Pxx];
                     chunks_key3_nongait = [chunks_key3_nongait chunk_label];
                     F_key3_nongait = [F_key3_nongait F];

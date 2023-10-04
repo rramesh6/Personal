@@ -25,7 +25,8 @@ for i = 1:size(post_align_struct.overall_gait_periods,1)
     % for RCS05 ptest, threshold = 20, var > 3
     % for RCS02 ptest, threshold = 15, var > 3
     % for RCS09 ptest1, threshold = 15, var > 3
-    threshold = 15;
+    % for RCS09 ptest2 and ptest3 threshold = 10, var > 3
+    threshold = 10;
     if var > 3
         crossings = (filtered_signal(1:end-1) < threshold & filtered_signal(2:end) >= threshold) | ...
             (filtered_signal(1:end-1) >= threshold & filtered_signal(2:end) < threshold);
@@ -61,6 +62,11 @@ end
 post_align_struct.l_rcs_lfp = post_align_struct.left_LFP_table;
 post_align_struct.l_rcs_lfp.NewTime = post_align_struct.l_rcs_lfp.DerivedTime(:) - post_align_struct.l_rcs_lfp.DerivedTime(1);
 
+if isfield(post_align_struct,'right_LFP_table')
+    post_align_struct.r_rcs_lfp = post_align_struct.right_LFP_table;
+    post_align_struct.r_rcs_lfp.NewTime = post_align_struct.r_rcs_lfp.DerivedTime(:) - post_align_struct.r_rcs_lfp.DerivedTime(1);
+end
+    
 %%
 
 post_align_struct.filename = 'test';

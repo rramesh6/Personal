@@ -11,23 +11,27 @@ title(['RCS05 Average Power Spectral Density (Key ' num2str(key) ')'])
 xlabel('Frequency (Hz)')
 ylabel('Power/Frequency (dB/Hz)')
 hold on 
-for i = 1:size(psd_struct.P_gait,2)
-    plot(psd_struct.F_gait(:,1),10*log10(psd_struct.P_gait(:,i)),"Color",[0 0 1 0.002],"LineWidth",0.00001)
+for i = 1:2:size(psd_struct.P_gait,2)
+    plot(psd_struct.F_gait(:,1),10*log10(psd_struct.P_gait(:,i)),"Color",[0 0 1 0.005],"LineWidth",0.00001)
 end
-g = plot(psd_struct.F_gait(:,1),mean(10*log10(psd_struct.P_gait),2),'b','LineWidth',2);
-std_gait = std(psd_struct.P_gait,[],2);
+g = plot(psd_struct.F_gait(:,1),mean(10*log10(psd_struct.P_gait),2),'b','LineWidth',3);
+% std_gait = std(psd_struct.P_gait,[],2);
 % se_gait = std_gait / sqrt(size(psd_struct.P_gait,2));
 % alpha = 0.05;
 % t_gait = tinv(1 - alpha / 2, size(psd_struct.P_gait,2)-1);
-% lower_gait = 10*log10(mean(psd_struct.P_gait,2) - t_gait*se_gait);
-% upper_gait = 10*log10(mean(psd_struct.P_gait,2) + t_gait*se_gait);
+% lower_gait = mean(10*log10(psd_struct.P_gait),2) - t_gait*se_gait;
+% lower_gait = mean(10*log10(psd_struct.P_gait),2) - 2*std_gait;
+% upper_gait = mean(10*log10(psd_struct.P_gait),2) + t_gait*se_gait;
+% upper_gait = mean(10*log10(psd_struct.P_gait),2) + 2*std_gait;
 % x_conf_gait = [psd_struct.F_gait(:,1)', fliplr((psd_struct.F_gait(:,1))')];
 % y_conf_gait = [lower_gait', fliplr((upper_gait)')];
+% hold on
+% patch(x_conf_gait, y_conf_gait, 'b','FaceAlpha',0.9,'EdgeColor','none')
 % fill(x_conf_gait,y_conf_gait,'b','FaceAlpha',0.3,'EdgeColor','none')
-for i = 1:size(psd_struct.P_nongait,2)
+for i = 1:10:size(psd_struct.P_nongait,2)
     plot(psd_struct.F_gait(:,1),10*log10(psd_struct.P_nongait(:,i)),"Color",[1 0 0 0.002],"LineWidth",0.00001)
 end
-ng = plot(psd_struct.F_nongait(:,1),mean(10*log10(psd_struct.P_nongait),2),'Color',[0.75 0 0],'LineWidth',2);
+ng = plot(psd_struct.F_nongait(:,1),mean(10*log10(psd_struct.P_nongait),2),'Color',[0.75 0 0],'LineWidth',3);
 % std_nongait = std(psd_struct.P_nongait,[],2);
 % se_nongait = std_nongait / sqrt(size(psd_struct.P_nongait,2));
 % alpha = 0.05;
@@ -46,17 +50,17 @@ ng = plot(psd_struct.F_nongait(:,1),mean(10*log10(psd_struct.P_nongait),2),'Colo
 % rectangle('Position',[30,-100,40,100],'FaceColor',[0, 1, 1, 0.1],'EdgeColor','none'); % low gamma
 % rectangle('Position',[70,-100,30,100],'FaceColor',[1, 0, 1, 0.1],'EdgeColor','none'); % high gamma
 y_limits = [-85 -30];
-plot([1.5 1.5],y_limits,LineStyle="--",Color=[0 0 0])
-plot([4 4],y_limits,LineStyle="--",Color=[0 0 0])
-plot([8 8],y_limits,LineStyle="--",Color=[0 0 0])
-plot([12 12],y_limits,LineStyle="--",Color=[0 0 0])
-plot([30 30],y_limits,LineStyle="--",Color=[0 0 0])
+% plot([1.5 1.5],y_limits,LineStyle="--",Color=[0 0 0])
+% plot([4 4],y_limits,LineStyle="--",Color=[0 0 0])
+% plot([8 8],y_limits,LineStyle="--",Color=[0 0 0])
+% plot([12 12],y_limits,LineStyle="--",Color=[0 0 0])
+% plot([30 30],y_limits,LineStyle="--",Color=[0 0 0])
 % plot([70 70],y_limits,LineStyle="--",Color=[0 0 0])
 % for i = 1:20:100
 %     x = i;
 %     plot([x x],y_limits,LineStyle="--",Color=[0 0 0])
 % end
-legend([g,ng],'Gait','Non-Gait')
+legend([g,ng],'Walk','Non-Walk','Location','southeast')
 xlim([0 100])
 ylim(y_limits)
 hold off 
